@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quick Training — Workout &amp; Stretch Generator</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root{
+  --bg:#F1EDE6;
+  --paper:#FFFFFF;
+  --ink:#1C2A21;
+  --ink-soft:#48564B;
+  --ink-dim:#83907E;
+  --line:#CFDCCC;
+  --accent:#E17750;
+  --accent-soft:#FBE1D3;
+  --radius:8px;
+  --radius-sm:4px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Inter',sans-serif;
+  min-height:100vh;
+  padding:48px 20px 90px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:760px;margin:0 auto;}
+
+/* ---- header ---- */
+.masthead{
+  border-bottom:1px solid var(--ink);
+  padding-bottom:20px;
+  margin-bottom:8px;
+}
+.masthead h1{
+  font-family:'Inter',sans-serif;
+  font-weight:300;
+  font-size:clamp(30px,6vw,42px);
+  letter-spacing:-0.5px;
+  margin:0 0 6px;
+  line-height:1;
+}
+.masthead h1 span{font-weight:600;color:var(--accent);}
+.masthead .tagline{
+  font-size:13px;
+  color:var(--ink-dim);
+  letter-spacing:0.2px;
+}
+
+/* ---- tabs ---- */
+.tabs{
+  display:flex;
+  gap:24px;
+  margin:30px 0 32px;
+  border-bottom:1px solid var(--line);
+}
+.tab{
+  padding:0 0 12px;
+  font-family:'Inter',sans-serif;
+  font-weight:500;
+  font-size:14px;
+  color:var(--ink-dim);
+  cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:color .15s, border-color .15s;
+  user-select:none;
+  margin-bottom:-1px;
+}
+.tab.active{color:var(--ink);border-bottom-color:var(--accent);}
+.tab:not(.active):hover{color:var(--ink-soft);}
+
+.panel{display:none;}
+.panel.active{display:block;animation:fade .25s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+/* ---- control card ---- */
+.controls{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:26px 26px 24px;
+  margin-bottom:28px;
+}
+.field{margin-bottom:22px;}
+.field:last-child{margin-bottom:0;}
+.field-label{
+  font-family:'Inter',sans-serif;
+  text-transform:uppercase;
+  font-size:11px;
+  letter-spacing:1.1px;
+  font-weight:600;
+  color:var(--ink-dim);
+  margin-bottom:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.field-label b{
+  font-family:'IBM Plex Mono',monospace;
+  font-weight:500;
+  color:var(--accent);
+  font-size:14px;
+  letter-spacing:0;
+  text-transform:none;
+}
+input[type=range]{
+  width:100%;
+  -webkit-appearance:none;
+  height:2px;
+  background:var(--line);
+  border-radius:1px;
+  outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:16px;height:16px;border-radius:50%;
+  background:var(--paper);
+  border:2px solid var(--accent);
+  cursor:pointer;
+  margin-top:-7px;
+}
+input[type=range]::-moz-range-thumb{
+  width:14px;height:14px;border-radius:50%;
+  background:var(--paper);border:2px solid var(--accent);cursor:pointer;
+}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{
+  border:1px solid var(--line);
+  padding:8px 14px;
+  border-radius:var(--radius-sm);
+  font-size:13px;
+  font-weight:500;
+  cursor:pointer;
+  color:var(--ink-soft);
+  background:var(--paper);
+  transition:all .15s;
+  user-select:none;
+}
+.chip:hover{border-color:var(--ink-dim);}
+.chip.on{
+  background:var(--ink);
+  border-color:var(--ink);
+  color:var(--paper);
+}
+.seg{display:flex;flex-wrap:wrap;gap:8px;}
+.seg-btn{
+  border:1px solid var(--line);
+  padding:8px 14px;
+  border-radius:var(--radius-sm);
+  font-family:'Inter',sans-serif;
+  font-size:13px;
+  font-weight:500;
+  color:var(--ink-soft);
+  background:var(--paper);
+  cursor:pointer;
+  user-select:none;
+  transition:all .15s;
+}
+.seg-btn:hover{border-color:var(--ink-dim);}
+.seg-btn.on{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+.toggle-row{display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;}
+.toggle{
+  width:36px;height:20px;border-radius:99px;background:var(--line);
+  position:relative;transition:background .15s;flex:none;
+}
+.toggle.on{background:var(--accent);}
+.toggle::after{
+  content:'';position:absolute;top:2px;left:2px;
+  width:16px;height:16px;border-radius:50%;background:var(--paper);
+  transition:left .15s;
+}
+.toggle.on::after{left:18px;}
+.toggle-label{font-size:13px;color:var(--ink-soft);}
+
+.generate-btn{
+  width:100%;
+  background:var(--ink);
+  color:var(--paper);
+  border:none;
+  padding:15px;
+  border-radius:var(--radius-sm);
+  font-family:'Inter',sans-serif;
+  font-weight:500;
+  font-size:14px;
+  letter-spacing:0.2px;
+  cursor:pointer;
+  margin-top:4px;
+  transition:background .15s, transform .1s;
+}
+.generate-btn:hover{background:var(--accent);}
+.generate-btn:active{transform:scale(0.99);}
+
+/* ---- results / session cards ---- */
+.results{display:flex;flex-direction:column;gap:16px;}
+.ticket{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+.ticket-head{
+  padding:18px 24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  flex-wrap:wrap;
+  gap:6px;
+  border-bottom:1px solid var(--line);
+}
+.ticket-head h3{
+  margin:0;
+  font-family:'Inter',sans-serif;
+  font-weight:500;
+  letter-spacing:-0.1px;
+  font-size:17px;
+  color:var(--ink);
+}
+.ticket-head .meta{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11.5px;
+  color:var(--ink-dim);
+  letter-spacing:0.3px;
+}
+.perf{display:none;}
+.ticket-body{padding:18px 24px 22px;}
+.block-label{
+  font-family:'Inter',sans-serif;
+  font-size:11px;
+  letter-spacing:1.1px;
+  text-transform:uppercase;
+  font-weight:600;
+  color:var(--ink-dim);
+  margin:16px 0 8px;
+}
+.block-label:first-child{margin-top:0;}
+.station{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 0;
+  border-bottom:1px solid var(--line);
+}
+.station:last-child{border-bottom:none;}
+.station-num{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  color:var(--ink-dim);
+  background:transparent;
+  border:1px solid var(--line);
+  width:24px;height:24px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex:none;
+}
+.station-name{font-weight:400;font-size:14.5px;flex:1;color:var(--ink);}
+.station-sub{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-dim);white-space:nowrap;}
+.station-tag{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  color:var(--ink-dim);
+  border:1px solid var(--line);
+  padding:2px 7px;
+  border-radius:var(--radius-sm);
+  flex:none;
+}
+.pair-group{
+  border-left:2px solid var(--line);
+  padding-left:12px;
+  margin-bottom:6px;
+}
+.round-note{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11.5px;
+  color:var(--ink-dim);
+  margin-top:16px;
+  border-top:1px solid var(--line);
+  padding-top:12px;
+}
+
+.empty-hint{
+  color:var(--ink-dim);
+  font-size:13.5px;
+  text-align:center;
+  padding:34px 10px;
+  border:1px dashed var(--line);
+  border-radius:var(--radius);
+}
+
+.fav-star{color:var(--accent);margin-right:3px;}
+
+/* ---- manage tab ---- */
+.data-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:16px 20px;
+  margin-bottom:18px;
+}
+.data-status{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11.5px;
+  color:var(--ink-dim);
+}
+.data-status b{color:var(--accent);font-weight:500;}
+.data-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.data-btn{
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink-soft);
+  padding:8px 14px;
+  border-radius:var(--radius-sm);
+  font-family:'Inter',sans-serif;
+  font-weight:500;
+  font-size:12px;
+  cursor:pointer;
+  transition:all .15s;
+}
+.data-btn:hover{border-color:var(--ink);color:var(--ink);}
+.data-btn.warn:hover{border-color:#B5624A;color:#B5624A;}
+
+.search-input{
+  width:100%;
+  background:var(--paper);
+  border:1px solid var(--line);
+  color:var(--ink);
+  padding:11px 14px;
+  border-radius:var(--radius-sm);
+  font-family:'Inter',sans-serif;
+  font-size:14px;
+  outline:none;
+  transition:border-color .15s;
+}
+.search-input:focus{border-color:var(--accent);}
+.search-input::placeholder{color:var(--ink-dim);}
+
+.ex-group-label{
+  font-family:'Inter',sans-serif;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  font-size:11.5px;
+  font-weight:600;
+  color:var(--ink-dim);
+  margin:20px 0 8px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+}
+.ex-group-label:first-child{margin-top:0;border-top:none;padding-top:0;}
+.ex-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:11px 4px;
+  border-bottom:1px solid var(--line);
+}
+.ex-row.is-excluded .ex-name{color:var(--ink-dim);text-decoration:line-through;}
+.ex-name{font-weight:400;font-size:14px;flex:1;color:var(--ink);}
+.ex-eq-tag{
+  font-size:10px;text-transform:uppercase;letter-spacing:0.5px;
+  color:var(--ink-dim);border:1px solid var(--line);
+  padding:2px 7px;border-radius:var(--radius-sm);flex:none;
+}
+.icon-btn{
+  width:30px;height:30px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink-dim);
+  cursor:pointer;
+  font-size:14px;
+  display:flex;align-items:center;justify-content:center;
+  flex:none;
+  transition:all .12s;
+}
+.icon-btn:hover{border-color:var(--ink-dim);color:var(--ink-soft);}
+.icon-btn.fav-btn.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);}
+.icon-btn.excl-btn.active{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+.manage-empty{color:var(--ink-dim);font-size:13.5px;text-align:center;padding:24px;}
+
+.info-btn{
+  width:26px;height:26px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink-dim);
+  cursor:pointer;
+  font-size:12px;
+  font-family:'IBM Plex Mono',monospace;
+  font-weight:500;
+  display:flex;align-items:center;justify-content:center;
+  flex:none;
+  transition:all .12s;
+}
+.info-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ---- modal ---- */
+.modal-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(28,42,33,0.35);
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.modal-overlay.open{display:flex;}
+.modal-box{
+  background:var(--paper);
+  border-radius:var(--radius);
+  max-width:440px;
+  width:100%;
+  padding:26px 26px 24px;
+  box-shadow:0 12px 40px rgba(28,42,33,0.18);
+}
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:14px;
+}
+.modal-head h3{
+  margin:0;
+  font-family:'Inter',sans-serif;
+  font-weight:500;
+  font-size:18px;
+  color:var(--ink);
+  letter-spacing:-0.1px;
+}
+.modal-close{
+  border:none;
+  background:transparent;
+  color:var(--ink-dim);
+  font-size:20px;
+  line-height:1;
+  cursor:pointer;
+  padding:2px 4px;
+  flex:none;
+}
+.modal-close:hover{color:var(--ink);}
+.modal-body{
+  font-size:14px;
+  line-height:1.6;
+  color:var(--ink-soft);
+}
+
+@media(max-width:520px){
+  .ticket-head{flex-direction:column;align-items:flex-start;}
+  .data-bar{flex-direction:column;align-items:stretch;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <h1>Quick<span>Training</span></h1>
+    <div class="tagline">Sessions built to the minute</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="workout">Workout</div>
+    <div class="tab" data-tab="stretch">Stretch</div>
+    <div class="tab" data-tab="week">Weekly Plan</div>
+    <div class="tab" data-tab="manage">Manage</div>
+  </div>
+
+  <!-- ===================== WORKOUT PANEL ===================== -->
+  <div class="panel active" id="panel-workout">
+    <div class="controls">
+      <div class="field">
+        <div class="field-label">Time available <b id="w-time-val">20 min</b></div>
+        <input type="range" id="w-time" min="10" max="45" step="5" value="20">
+      </div>
+      <div class="field">
+        <div class="field-label">Equipment</div>
+        <div class="chips" id="w-equip">
+          <div class="chip on" data-eq="db">Dumbbells</div>
+          <div class="chip on" data-eq="bw">Bodyweight</div>
+          <div class="chip on" data-eq="bd">Bands</div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label">Focus</div>
+        <div class="seg" id="w-focus">
+          <div class="seg-btn on" data-f="full">Full Body</div>
+          <div class="seg-btn" data-f="upper">Upper Body</div>
+          <div class="seg-btn" data-f="lower">Lower Body</div>
+          <div class="seg-btn" data-f="pull-core">Pull + Core</div>
+          <div class="seg-btn" data-f="push-cond">Push + Conditioning</div>
+        </div>
+      </div>
+      <button class="generate-btn" id="w-generate">Generate Workout</button>
+    </div>
+    <div class="results" id="w-results">
+      <div class="empty-hint">Set your time and equipment, then generate a session.</div>
+    </div>
+  </div>
+
+  <!-- ===================== STRETCH PANEL ===================== -->
+  <div class="panel" id="panel-stretch">
+    <div class="controls">
+      <div class="field">
+        <div class="field-label">Time available <b id="s-time-val">15 min</b></div>
+        <input type="range" id="s-time" min="5" max="30" step="5" value="15">
+      </div>
+      <div class="field">
+        <div class="field-label">Focus area</div>
+        <div class="seg" id="s-focus">
+          <div class="seg-btn on" data-f="full">Full Body</div>
+          <div class="seg-btn" data-f="upper">Neck &amp; Shoulders</div>
+          <div class="seg-btn" data-f="back">Back</div>
+          <div class="seg-btn" data-f="hip">Hips &amp; Glutes</div>
+          <div class="seg-btn" data-f="leg">Legs</div>
+        </div>
+      </div>
+      <button class="generate-btn" id="s-generate">Generate Stretch Session</button>
+    </div>
+    <div class="results" id="s-results">
+      <div class="empty-hint">No equipment needed — just pick a focus and time.</div>
+    </div>
+  </div>
+
+  <!-- ===================== WEEKLY PLAN PANEL ===================== -->
+  <div class="panel" id="panel-week">
+    <div class="controls">
+      <div class="field">
+        <div class="field-label">Training days per week</div>
+        <div class="seg" id="p-days">
+          <div class="seg-btn" data-d="3">3</div>
+          <div class="seg-btn" data-d="4">4</div>
+          <div class="seg-btn on" data-d="5">5</div>
+          <div class="seg-btn" data-d="6">6</div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label">Time per session <b id="p-time-val">18 min</b></div>
+        <input type="range" id="p-time" min="10" max="40" step="2" value="18">
+      </div>
+      <div class="field">
+        <div class="field-label">Equipment</div>
+        <div class="chips" id="p-equip">
+          <div class="chip on" data-eq="db">Dumbbells</div>
+          <div class="chip on" data-eq="bw">Bodyweight</div>
+          <div class="chip on" data-eq="bd">Bands</div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="toggle-row" id="p-stretch-toggle">
+          <div class="toggle on" id="p-stretch-switch"></div>
+          <div class="toggle-label">Include one dedicated stretch/mobility day</div>
+        </div>
+      </div>
+      <button class="generate-btn" id="p-generate">Generate Weekly Plan</button>
+    </div>
+    <div class="results" id="p-results">
+      <div class="empty-hint">Build your week — strength days rotate focus automatically.</div>
+    </div>
+  </div>
+  <!-- ===================== MANAGE PANEL ===================== -->
+  <div class="panel" id="panel-manage">
+    <div class="data-bar">
+      <div class="data-status" id="data-status">Loading saved preferences…</div>
+      <div class="data-actions">
+        <button class="data-btn" id="btn-export">Export</button>
+        <button class="data-btn" id="btn-import">Import</button>
+        <input type="file" id="file-import" accept="application/json" style="display:none;">
+        <button class="data-btn warn" id="btn-reset">Reset All</button>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="field">
+        <div class="field-label">Search exercises</div>
+        <input type="text" class="search-input" id="ex-search" placeholder="Search by name…">
+      </div>
+      <div class="field">
+        <div class="field-label">Filter</div>
+        <div class="seg" id="ex-filter">
+          <div class="seg-btn on" data-ef="all">All</div>
+          <div class="seg-btn" data-ef="db">Dumbbell</div>
+          <div class="seg-btn" data-ef="bw">Bodyweight</div>
+          <div class="seg-btn" data-ef="bd">Band</div>
+          <div class="seg-btn" data-ef="stretch">Stretches</div>
+          <div class="seg-btn" data-ef="favorites">★ Favorites</div>
+          <div class="seg-btn" data-ef="excluded">Excluded</div>
+        </div>
+      </div>
+    </div>
+    <div class="ticket">
+      <div class="ticket-body" id="ex-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="info-modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="info-modal-title">Exercise</h3>
+      <button class="modal-close" id="info-modal-close">&times;</button>
+    </div>
+    <div class="modal-body" id="info-modal-body"></div>
+  </div>
+</div>
+
+<script>
+/* ============================ DATA ============================ */
+const STRENGTH = [
+  // upper push
+  {n:"Dumbbell Bench Press",eq:['db'],g:'push',d:"Lie on a bench or the floor with a dumbbell in each hand at chest height, palms facing forward. Press both dumbbells straight up until arms are extended, then lower with control back to chest level."},
+  {n:"Incline Dumbbell Press",eq:['db'],g:'push',d:"On an incline bench (30-45°), press dumbbells from shoulder height straight up over your chest, then lower slowly back to the start. Keep your feet flat and core braced."},
+  {n:"Dumbbell Floor Press",eq:['db'],g:'push',d:"Lie on the floor with knees bent, holding a dumbbell in each hand at chest level. Press up until arms are straight, then lower until your triceps touch the floor and repeat."},
+  {n:"Dumbbell Shoulder Press",eq:['db'],g:'push',d:"Sit or stand holding dumbbells at shoulder height, palms forward. Press overhead until arms are straight, then lower back to shoulder height with control."},
+  {n:"Arnold Press",eq:['db'],g:'push',d:"Start with dumbbells at shoulder height, palms facing you. Press overhead while rotating your palms to face forward, then reverse the rotation as you lower back down."},
+  {n:"Lateral Raise",eq:['db'],g:'push',d:"Stand holding a dumbbell in each hand at your sides. With a slight bend in the elbows, raise both arms out to the sides until they reach shoulder height, then lower slowly."},
+  {n:"Front Raise",eq:['db'],g:'push',d:"Stand holding dumbbells in front of your thighs. Raise one or both arms straight in front of you to shoulder height, then lower with control."},
+  {n:"Overhead Tricep Extension",eq:['db'],g:'push',d:"Hold one dumbbell with both hands overhead, arms extended. Lower the dumbbell behind your head by bending the elbows, then extend back up to full arm extension."},
+  {n:"Tricep Kickback",eq:['db'],g:'push',d:"Hinge forward at the hips with a dumbbell in each hand, elbows bent at 90° and tucked to your sides. Extend your forearms back until arms are straight, then return."},
+  {n:"Push-Ups",eq:['bw'],g:'push',d:"Start in a plank position with hands under shoulders. Lower your chest to the floor by bending the elbows, keeping your body in a straight line, then press back up."},
+  {n:"Diamond Push-Ups",eq:['bw'],g:'push',d:"In a plank position, place your hands together under your chest forming a diamond shape with your thumbs and index fingers. Lower your chest toward your hands, then press back up."},
+  {n:"Pike Push-Ups",eq:['bw'],g:'push',d:"Start in a downward-dog position with hips high. Bend your elbows to lower the top of your head toward the floor, then press back up to the starting position."},
+  {n:"Incline Push-Ups",eq:['bw'],g:'push',d:"Place your hands on a raised, stable surface like a step or bench. Lower your chest toward the surface by bending the elbows, then press back up."},
+  {n:"Tricep Dips",eq:['bw'],g:'push',d:"Sit on the edge of a chair or bench with hands beside your hips. Slide off the edge and lower your body by bending your elbows, then press back up to straighten your arms."},
+  {n:"Band Chest Press",eq:['bd'],g:'push',d:"Anchor the band behind you at chest height. Hold an end in each hand and press forward until arms are extended, then return with control."},
+  {n:"Band Shoulder Press",eq:['bd'],g:'push',d:"Stand on the band with feet shoulder-width apart, holding an end in each hand at shoulder height. Press both hands overhead until arms are straight, then lower back down."},
+  {n:"Band Lateral Raise",eq:['bd'],g:'push',d:"Stand on the middle of the band, holding an end in each hand at your sides. Raise both arms out to shoulder height, then lower slowly."},
+  {n:"Band Tricep Pushdown",eq:['bd'],g:'push',d:"Anchor the band overhead. Hold the ends with elbows bent at your sides and push down until arms are straight, then return with control."},
+  {n:"Band Overhead Tricep Extension",eq:['bd'],g:'push',d:"Anchor the band at floor level behind you. Hold it overhead with elbows bent, then extend your arms straight up, keeping elbows close to your head."},
+  // upper pull
+  {n:"Single-Arm Dumbbell Row",eq:['db'],g:'pull',d:"Place one knee and hand on a bench for support, holding a dumbbell in the other hand hanging straight down. Pull the dumbbell up to your hip, then lower with control."},
+  {n:"Two-Arm Bent-Over Row",eq:['db'],g:'pull',d:"Hinge forward at the hips with a dumbbell in each hand hanging below your shoulders. Pull both dumbbells up toward your ribs, squeezing your shoulder blades, then lower."},
+  {n:"Renegade Row",eq:['db'],g:'pull',d:"Start in a plank position gripping a dumbbell in each hand. Row one dumbbell up to your hip while balancing on the other arm, then alternate sides."},
+  {n:"Dumbbell Shrugs",eq:['db'],g:'pull',d:"Stand holding a dumbbell in each hand at your sides. Shrug your shoulders straight up toward your ears, then lower with control."},
+  {n:"Dumbbell Bicep Curl",eq:['db'],g:'pull',d:"Stand holding dumbbells at your sides, palms facing forward. Curl the weights up toward your shoulders, then lower with control."},
+  {n:"Hammer Curl",eq:['db'],g:'pull',d:"Stand holding dumbbells at your sides with palms facing each other. Curl the weights up keeping that neutral grip, then lower with control."},
+  {n:"Concentration Curl",eq:['db'],g:'pull',d:"Sit with your elbow braced against your inner thigh, holding a dumbbell. Curl the weight up toward your shoulder, then lower slowly."},
+  {n:"Zottman Curl",eq:['db'],g:'pull',d:"Curl dumbbells up with palms facing forward, then rotate your palms to face down at the top and lower slowly in that reversed grip."},
+  {n:"Pull-Ups",eq:['bw'],g:'pull',d:"Hang from a bar with an overhand grip, hands wider than shoulders. Pull your body up until your chin clears the bar, then lower with control."},
+  {n:"Chin-Ups",eq:['bw'],g:'pull',d:"Hang from a bar with an underhand grip, hands shoulder-width apart. Pull your body up until your chin clears the bar, then lower with control."},
+  {n:"Inverted Rows",eq:['bw'],g:'pull',d:"Lie under a sturdy bar or table with your body straight, gripping it above you. Pull your chest up toward the bar, then lower back down."},
+  {n:"Superman",eq:['bw'],g:'pull',d:"Lie face down with arms extended overhead. Simultaneously lift your arms, chest, and legs off the floor, hold briefly, then lower back down."},
+  {n:"Band Bent-Over Row",eq:['bd'],g:'pull',d:"Stand on the band with feet shoulder-width apart, hinge forward slightly, and pull the handles up toward your ribs, squeezing your shoulder blades together."},
+  {n:"Band Face Pull",eq:['bd'],g:'pull',d:"Anchor the band at chest height. Pull the ends toward your face, flaring your elbows out wide and squeezing your shoulder blades together, then return."},
+  {n:"Band Upright Row",eq:['bd'],g:'pull',d:"Stand on the band holding the ends in front of your thighs. Pull the band straight up toward your chin, leading with your elbows, then lower."},
+  {n:"Band Bicep Curl",eq:['bd'],g:'pull',d:"Stand on the band with an end in each hand at your sides. Curl your hands up toward your shoulders, then lower with control."},
+  {n:"Band Lat Pulldown",eq:['bd'],g:'pull',d:"Anchor the band overhead. Kneel or sit and pull the handles down toward your chest, squeezing your shoulder blades, then release back up."},
+  {n:"Band Pull-Apart",eq:['bd'],g:'pull',d:"Hold the band with both hands in front of you at shoulder height, arms straight. Pull the band apart by squeezing your shoulder blades together, then return."},
+  // lower
+  {n:"Dumbbell Goblet Squat",eq:['db'],g:'lower',d:"Hold one dumbbell vertically against your chest with both hands. Squat down by bending your knees and hips until thighs are roughly parallel to the floor, then stand back up."},
+  {n:"Bulgarian Split Squat",eq:['db'],g:'lower',d:"Stand a couple feet in front of a bench with one foot resting behind you on it, holding dumbbells at your sides. Lower your back knee toward the floor, then push back up."},
+  {n:"Dumbbell Romanian Deadlift",eq:['db'],g:'lower',d:"Hold dumbbells in front of your thighs. Hinge at the hips, pushing them back while lowering the weights along your legs, keeping a slight knee bend, then return to standing."},
+  {n:"Dumbbell Lunges",eq:['db'],g:'lower',d:"Hold dumbbells at your sides and step forward, lowering your back knee toward the floor until both knees are bent around 90°. Push back to standing and repeat."},
+  {n:"Dumbbell Step-Ups",eq:['db'],g:'lower',d:"Hold dumbbells at your sides facing a sturdy box or bench. Step up with one foot, driving through the heel to stand fully on top, then step back down."},
+  {n:"Dumbbell Calf Raise",eq:['db'],g:'lower',d:"Stand holding dumbbells at your sides. Rise up onto the balls of your feet as high as you can, then lower your heels back down with control."},
+  {n:"Sumo Squat",eq:['db'],g:'lower',d:"Stand with feet wider than shoulder-width, toes turned out, holding one dumbbell with both hands between your legs. Squat down, then drive back up to standing."},
+  {n:"Bodyweight Squats",eq:['bw'],g:'lower',d:"Stand with feet shoulder-width apart. Bend your knees and hips to lower down as if sitting into a chair, then push through your heels to stand back up."},
+  {n:"Jump Squats",eq:['bw'],g:'lower',d:"Perform a bodyweight squat, then explosively jump straight up as you reach the bottom. Land softly and immediately lower into the next rep."},
+  {n:"Walking Lunges",eq:['bw'],g:'lower',d:"Step forward into a lunge, lowering your back knee toward the floor, then push off your front foot to bring your back leg forward into the next lunge, continuing forward."},
+  {n:"Reverse Lunges",eq:['bw'],g:'lower',d:"Step backward with one leg, lowering your back knee toward the floor until both knees are bent around 90°, then push back to standing."},
+  {n:"Wall Sit",eq:['bw'],g:'lower',d:"Lean your back against a wall and slide down until your knees are bent at roughly 90°, thighs parallel to the floor. Hold this position, keeping your back flat against the wall."},
+  {n:"Glute Bridge",eq:['bw'],g:'lower',d:"Lie on your back with knees bent and feet flat on the floor. Drive through your heels to lift your hips toward the ceiling, squeeze your glutes, then lower back down."},
+  {n:"Single-Leg Glute Bridge",eq:['bw'],g:'lower',d:"Lie on your back with one knee bent and foot on the floor, the other leg extended straight. Drive through the planted heel to lift your hips, then lower back down."},
+  {n:"Calf Raises",eq:['bw'],g:'lower',d:"Stand with feet hip-width apart. Rise up onto the balls of your feet as high as you can, hold briefly, then lower your heels back down."},
+  {n:"Pistol Squats",eq:['bw'],g:'lower',d:"Stand on one leg with the other extended in front of you. Lower into a single-leg squat as far as you can with control, then push back up to standing."},
+  {n:"Band Squat",eq:['bd'],g:'lower',d:"Stand on the band with feet shoulder-width apart, holding the handles at shoulder height. Squat down against the band's resistance, then drive back up to standing."},
+  {n:"Band Glute Bridge",eq:['bd'],g:'lower',d:"Lie on your back with the band around your thighs, knees bent, feet flat. Drive your hips up while pressing your knees out against the band, then lower back down."},
+  {n:"Band Clamshell",eq:['bd'],g:'lower',d:"Lie on your side with knees bent and a band around your thighs. Keeping feet together, open your top knee upward against the band's resistance, then lower it back down."},
+  {n:"Band Lateral Walk",eq:['bd'],g:'lower',d:"Place a band around your ankles or thighs and get into a slight squat. Step sideways against the band's resistance, keeping tension throughout, then repeat in the other direction."},
+  {n:"Band Kickback",eq:['bd'],g:'lower',d:"Anchor the band around one ankle and a low fixed point. On hands and knees, kick that leg straight back against the band's resistance, then return with control."},
+  {n:"Band Romanian Deadlift",eq:['bd'],g:'lower',d:"Stand on the band with feet hip-width apart, holding the handles in front of your thighs. Hinge at the hips, lowering the handles along your legs, then return to standing."},
+  {n:"Band Donkey Kick",eq:['bd'],g:'lower',d:"With a band around your thighs, get on hands and knees. Kick one leg back and up, keeping the knee bent, squeezing your glute at the top, then lower back down."},
+  // core
+  {n:"Dumbbell Russian Twist",eq:['db'],g:'core',d:"Sit with knees bent and lean back slightly, holding one dumbbell with both hands. Rotate your torso to tap the dumbbell on the floor beside each hip, alternating sides."},
+  {n:"Weighted Sit-Up",eq:['db'],g:'core',d:"Lie on your back with knees bent, holding a dumbbell against your chest. Curl your torso up to a sitting position, then lower back down with control."},
+  {n:"Dumbbell Side Bend",eq:['db'],g:'core',d:"Stand holding a dumbbell in one hand at your side. Bend sideways at the waist, lowering the weight down your leg, then return to standing upright."},
+  {n:"Plank",eq:['bw'],g:'core',d:"Support your body on your forearms and toes, keeping your body in a straight line from head to heels. Hold this position while keeping your core tight."},
+  {n:"Side Plank",eq:['bw'],g:'core',d:"Lie on your side propped up on one forearm, feet stacked, body in a straight line. Lift your hips off the floor and hold, keeping your core engaged."},
+  {n:"Bicycle Crunches",eq:['bw'],g:'core',d:"Lie on your back with hands behind your head. Bring one knee toward your chest while rotating to touch it with the opposite elbow, then switch sides in a pedaling motion."},
+  {n:"Mountain Climbers",eq:['bw'],g:'core',d:"Start in a plank position. Quickly drive one knee toward your chest, then switch legs in a running motion while keeping your hips low and core tight."},
+  {n:"Leg Raises",eq:['bw'],g:'core',d:"Lie on your back with legs extended. Keeping them straight, raise your legs toward the ceiling, then lower them back down without letting your lower back arch off the floor."},
+  {n:"V-Ups",eq:['bw'],g:'core',d:"Lie flat on your back with arms extended overhead. Simultaneously raise your legs and torso to form a V shape, reaching your hands toward your feet, then lower back down."},
+  {n:"Hollow Body Hold",eq:['bw'],g:'core',d:"Lie on your back and press your lower back into the floor. Lift your shoulders and legs slightly off the ground, arms extended overhead, and hold this hollow shape."},
+  {n:"Russian Twists",eq:['bw'],g:'core',d:"Sit with knees bent and lean back slightly, hands clasped in front of you. Rotate your torso side to side, tapping the floor near each hip."},
+  {n:"Band Russian Twist",eq:['bd'],g:'core',d:"Anchor the band at chest height to your side. Hold it with both hands and rotate your torso away from the anchor against the resistance, then return."},
+  {n:"Band Woodchopper",eq:['bd'],g:'core',d:"Anchor the band low to one side. Hold it with both hands and rotate your torso to pull the band diagonally up and across your body, then return with control."},
+  {n:"Pallof Press",eq:['bd'],g:'core',d:"Anchor the band to your side at chest height. Hold it at your chest and press it straight out in front of you, resisting the pull that rotates your torso, then return."},
+  // full / conditioning
+  {n:"Dumbbell Thruster",eq:['db'],g:'full',d:"Hold dumbbells at shoulder height and squat down. As you stand back up, drive the dumbbells overhead in one fluid motion, then lower back to the starting position."},
+  {n:"Dumbbell Clean and Press",eq:['db'],g:'full',d:"Start with dumbbells at your sides. Explosively pull them up to shoulder height in one motion, then press them overhead until arms are straight, then lower back down."},
+  {n:"Devil's Press",eq:['db'],g:'full',d:"Start with dumbbells on the floor. Perform a burpee gripping the dumbbells, then as you stand explosively swing them overhead in one motion, then return to the floor and repeat."},
+  {n:"Dumbbell Snatch",eq:['db'],g:'full',d:"Start with one dumbbell on the floor between your feet. In one explosive motion, pull it up and punch your arm overhead until it's fully extended, then lower back down."},
+  {n:"Man Makers",eq:['db'],g:'full',d:"Start in a plank holding dumbbells, row each arm, then jump your feet in, stand up performing a curl and overhead press, then step back to plank and repeat."},
+  {n:"Burpees",eq:['bw'],g:'full',d:"From standing, drop into a squat and place your hands on the floor, jump your feet back into a plank, do a push-up, jump feet back in, then jump up explosively."},
+  {n:"Jumping Jacks",eq:['bw'],g:'full',d:"Stand with feet together and arms at your sides. Jump your feet out wide while raising your arms overhead, then jump back to the starting position."},
+  {n:"High Knees",eq:['bw'],g:'full',d:"Jog in place while driving your knees up toward your chest as high as you can, moving quickly and pumping your arms."},
+  {n:"Bear Crawl",eq:['bw'],g:'full',d:"Start on hands and feet with knees hovering just off the floor. Crawl forward by moving opposite hand and foot together, keeping your hips low and core tight."},
+  {n:"Skater Jumps",eq:['bw'],g:'full',d:"Stand on one leg and jump laterally to the other leg, swinging your arms for momentum and landing softly with a slight knee bend, then jump back the other way."},
+  {n:"Band Deadlift",eq:['bd'],g:'full',d:"Stand on the band with feet hip-width apart, holding the handles in front of your thighs. Hinge at the hips and bend the knees slightly to lower the handles, then stand back up."},
+  {n:"Band Squat-to-Press",eq:['bd'],g:'full',d:"Stand on the band holding the handles at shoulder height. Squat down, then as you stand press the handles overhead in one fluid motion, then lower back to shoulders."},
+  {n:"Band Good Morning",eq:['bd'],g:'full',d:"Stand on the band with it across your upper back or held at your shoulders. Hinge forward at the hips with a slight knee bend, then return to standing."},
+];
+
+const STRETCHES = [
+  {n:"Neck Tilts",r:'upper',d:"Sit or stand tall. Gently tilt your head to bring one ear toward that shoulder until you feel a stretch along the opposite side of your neck, hold, then switch sides."},
+  {n:"Neck Rotations",r:'upper',d:"Sit or stand tall with shoulders relaxed. Slowly turn your head to look over one shoulder as far as comfortable, hold briefly, then rotate to the other side."},
+  {n:"Shoulder Rolls",r:'upper',d:"Stand or sit relaxed. Lift your shoulders up toward your ears, roll them back and down in a circular motion, repeating smoothly for several rotations."},
+  {n:"Cross-Body Shoulder Stretch",r:'upper',d:"Bring one arm straight across your chest. Use your other arm to gently pull it closer, holding the stretch across the back of your shoulder."},
+  {n:"Overhead Tricep Stretch",r:'upper',d:"Raise one arm overhead and bend the elbow so your hand drops behind your head. Use your other hand to gently press the elbow back, feeling a stretch in the tricep."},
+  {n:"Doorway Chest Stretch",r:'upper',d:"Stand in a doorway with your forearm against the frame, elbow bent at 90°. Lean your body forward through the doorway until you feel a stretch across your chest, then switch arms."},
+  {n:"Cat-Cow Stretch",r:'back',d:"Get on hands and knees. Arch your back and drop your belly while lifting your head (cow), then round your spine and tuck your chin (cat), flowing slowly between the two."},
+  {n:"Child's Pose",r:'back',d:"Kneel with big toes touching and knees apart. Sit back onto your heels and stretch your arms forward, lowering your chest toward the floor and relaxing your back."},
+  {n:"Seated Spinal Twist",r:'back',d:"Sit with legs extended, cross one foot over the opposite knee, and gently rotate your torso toward the bent knee, using your arm for leverage, then switch sides."},
+  {n:"Standing Spinal Twist",r:'back',d:"Stand with feet hip-width apart and arms relaxed. Gently rotate your torso from side to side, letting your arms swing naturally with the motion."},
+  {n:"Knee-to-Chest Stretch",r:'back',d:"Lie on your back and pull one knee up toward your chest with both hands, keeping the other leg extended or bent, then switch legs."},
+  {n:"Cobra Stretch",r:'back',d:"Lie face down with hands under your shoulders. Press through your hands to lift your chest off the floor, keeping hips grounded, feeling a stretch along your abdomen."},
+  {n:"Lower Back Rotation Stretch",r:'back',d:"Lie on your back with knees bent together. Gently drop both knees to one side while keeping shoulders flat on the floor, hold, then rotate to the other side."},
+  {n:"Pigeon Pose",r:'hip',d:"From a plank or tabletop position, bring one knee forward and angle it toward the opposite hand, extending the other leg straight back. Lower your hips and lean forward gently."},
+  {n:"Figure-4 Stretch",r:'hip',d:"Lie on your back, cross one ankle over the opposite knee, and pull the uncrossed leg toward your chest until you feel a stretch in the crossed leg's hip, then switch."},
+  {n:"Butterfly Stretch",r:'hip',d:"Sit with the soles of your feet together and knees dropped out to the sides. Hold your feet and gently press your knees toward the floor, leaning forward slightly."},
+  {n:"Hip Flexor Lunge Stretch",r:'hip',d:"Step into a low lunge with your back knee on the floor. Shift your hips forward gently until you feel a stretch at the front of the back leg's hip."},
+  {n:"Frog Stretch",r:'hip',d:"On hands and knees, widen your knees out to the sides as far as comfortable with feet in line with knees. Rock your hips back slightly to deepen the inner-thigh stretch."},
+  {n:"90/90 Hip Stretch",r:'hip',d:"Sit with one leg bent in front of you at 90° and the other bent behind you at 90°. Lean your torso forward over the front leg, then switch the leg positions."},
+  {n:"Standing Hamstring Stretch",r:'leg',d:"Stand and place one heel on a low surface with the leg straight. Hinge forward at the hips, keeping your back flat, until you feel a stretch behind the thigh."},
+  {n:"Seated Hamstring Stretch",r:'leg',d:"Sit with one leg extended straight and the other bent, foot near the inner thigh. Reach forward toward the extended foot, keeping your back long, then switch legs."},
+  {n:"Standing Calf Stretch",r:'leg',d:"Stand facing a wall with one foot back, heel pressed into the floor and leg straight. Lean into the wall until you feel a stretch in the back leg's calf, then switch."},
+  {n:"Seated Forward Fold",r:'leg',d:"Sit with both legs extended in front of you. Hinge forward from the hips, reaching toward your feet while keeping your back as straight as comfortable."},
+  {n:"Standing IT Band Stretch",r:'leg',d:"Stand and cross one leg behind the other. Lean your hips toward the side of the front leg until you feel a stretch along the outer thigh of the back leg, then switch."},
+  {n:"Standing Quad Stretch",r:'leg',d:"Stand on one leg, holding a wall for balance if needed. Bend the other knee and grab that foot behind you, gently pulling your heel toward your glute, then switch legs."},
+  {n:"Ankle Circles",r:'leg',d:"Sit or stand and lift one foot slightly off the floor. Rotate your ankle slowly in a full circle several times in each direction, then switch feet."},
+  {n:"Lunge Stretch with Twist",r:'full',d:"Step into a low lunge with your back knee on the floor. Place the opposite hand down and rotate your torso, reaching your other arm up toward the ceiling."},
+  {n:"Downward Dog",r:'full',d:"From hands and knees, tuck your toes and lift your hips up and back, straightening your arms and legs to form an inverted V shape, pressing your heels toward the floor."},
+  {n:"Standing Side Bend",r:'full',d:"Stand with feet hip-width apart, reach one arm overhead, and lean your torso to the opposite side, feeling a stretch along your side body, then switch sides."},
+  {n:"World's Greatest Stretch",r:'full',d:"Step into a deep lunge, place both hands inside the front foot, rotate one arm up toward the ceiling, then straighten the front leg to add a hamstring stretch before repeating."},
+];
+
+const FOCUS_GROUPS = {
+  full:['push','pull','lower','core','full'],
+  upper:['push','pull','push','pull','core'],
+  lower:['lower','core','lower','full'],
+  'pull-core':['pull','core','pull','full'],
+  'push-cond':['push','full','push','core'],
+};
+const EQUIP_LABEL = {db:'Dumbbell',bw:'Bodyweight',bd:'Band'};
+
+/* ============================ PREFERENCES STATE ============================ */
+let favorites = new Set();
+let excluded = new Set();
+const ALL_ITEMS = STRENGTH.concat(STRETCHES);
+
+async function loadPrefs(){
+  // Try Claude artifact storage first, then fall back to this browser's localStorage.
+  try{
+    if(window.storage){
+      const r = await window.storage.get('qt-prefs');
+      if(r && r.value) return JSON.parse(r.value);
+    }
+  }catch(e){/* no saved prefs yet, or storage unavailable */}
+  try{
+    const raw = localStorage.getItem('qt-prefs');
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return {favorites:[], excluded:[]};
+}
+
+async function savePrefs(){
+  const payload = JSON.stringify({favorites:[...favorites], excluded:[...excluded]});
+  let savedVia = null;
+  try{
+    if(window.storage){
+      await window.storage.set('qt-prefs', payload, false);
+      savedVia = 'cloud';
+    }
+  }catch(e){/* fall through to localStorage */}
+  try{
+    localStorage.setItem('qt-prefs', payload);
+    savedVia = savedVia || 'local';
+  }catch(e){}
+  updateDataStatus(savedVia);
+}
+
+function updateDataStatus(savedVia){
+  const el = document.getElementById('data-status');
+  if(!el) return;
+  const favN = favorites.size, exN = excluded.size;
+  if(savedVia){
+    el.innerHTML = `<b>${favN}</b> favorited · <b>${exN}</b> excluded — saved ${savedVia==='cloud'?'automatically':'to this browser'}`;
+  } else {
+    el.innerHTML = `<b>${favN}</b> favorited · <b>${exN}</b> excluded — autosave unavailable, use Export to keep changes`;
+  }
+}
+
+/* ============================ HELPERS ============================ */
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
+
+function filterByEquip(list, equipSet){
+  return list.filter(e=>e.eq.some(x=>equipSet.has(x)) && !excluded.has(e.n));
+}
+
+function pickExercises(pool, group, count, used){
+  const matching = pool.filter(e=>e.g===group && !used.has(e.n));
+  let candidates = shuffle(matching.filter(e=>favorites.has(e.n)))
+    .concat(shuffle(matching.filter(e=>!favorites.has(e.n))));
+  if(candidates.length < count){
+    const extra = pool.filter(e=>e.g!==group && !used.has(e.n));
+    candidates = candidates.concat(
+      shuffle(extra.filter(e=>favorites.has(e.n))),
+      shuffle(extra.filter(e=>!favorites.has(e.n)))
+    );
+  }
+  const picked = candidates.slice(0,count);
+  picked.forEach(p=>used.add(p.n));
+  return picked;
+}
+
+/* ============================ WORKOUT GENERATOR ============================ */
+function generateWorkout(minutes, equipSet, focus){
+  const pool = filterByEquip(STRENGTH, equipSet);
+  const groups = FOCUS_GROUPS[focus] || FOCUS_GROUPS.full;
+
+  const warmupMin = minutes>=12 ? 2 : (minutes>=8 ? 1 : 0);
+  const working = minutes - warmupMin;
+  const pairMinutes = 4;
+  let numPairs = clamp(Math.round(working/pairMinutes),1,5);
+  const rounds = minutes<15 ? 2 : 3;
+
+  const used = new Set();
+  const pairs = [];
+  for(let i=0;i<numPairs;i++){
+    const gA = groups[(i*2)%groups.length];
+    const gB = groups[(i*2+1)%groups.length];
+    const exA = pickExercises(pool,gA,1,used)[0];
+    const exB = pickExercises(pool,gB,1,used)[0];
+    const pairEx = [exA,exB].filter(Boolean);
+    if(pairEx.length) pairs.push(pairEx);
+  }
+
+  const leftover = working - numPairs*pairMinutes;
+  let finisher = null;
+  if(leftover >= 2 || (pool.length && pairs.length===0)){
+    const fGroup = groups[groups.length-1];
+    const fx = pickExercises(pool, fGroup==='full'?'full':fGroup, 1, used)[0]
+            || pickExercises(pool,'full',1,used)[0];
+    if(fx) finisher = fx;
+  }
+
+  return {minutes, warmupMin, rounds, pairs, finisher, focus};
+}
+
+const DESC_BY_NAME = {};
+ALL_ITEMS.forEach(item=>{ DESC_BY_NAME[item.n] = item.d || "No description available yet for this exercise."; });
+
+function infoBtn(name){
+  const safe = name.replace(/"/g,'&quot;');
+  return `<button class="info-btn" data-info-name="${safe}" title="How to do this exercise" aria-label="Info">i</button>`;
+}
+
+function starTag(name){
+  return favorites.has(name) ? '<span class="fav-star">★</span>' : '';
+}
+
+function renderWorkout(w){
+  const focusLabels = {full:'Full Body',upper:'Upper Body',lower:'Lower Body','pull-core':'Pull + Core','push-cond':'Push + Conditioning'};
+  let html = `<div class="ticket">
+    <div class="ticket-head">
+      <h3>${focusLabels[w.focus]||'Workout'}</h3>
+      <div class="meta">${w.minutes} MIN · ${w.rounds} ROUNDS</div>
+    </div>
+    <div class="perf"></div>
+    <div class="ticket-body">`;
+
+  if(w.warmupMin>0){
+    html += `<div class="block-label">Warm-up · ${w.warmupMin} min</div>
+      <div class="station">
+        <div class="station-num">W</div>
+        <div class="station-name">Light cardio + arm circles</div>
+      </div>`;
+  }
+
+  let stationCount=1;
+  w.pairs.forEach((pair,idx)=>{
+    html += `<div class="block-label">Superset ${idx+1}</div><div class="pair-group">`;
+    pair.forEach(ex=>{
+      html += `<div class="station">
+        <div class="station-num">${stationCount++}</div>
+        <div class="station-name">${starTag(ex.n)}${ex.n}</div>
+        <div class="station-tag">${EQUIP_LABEL[ex.eq[0]]}</div>
+        ${infoBtn(ex.n)}
+      </div>`;
+    });
+    html += `</div>`;
+  });
+
+  if(w.finisher){
+    html += `<div class="block-label">Finisher</div>
+      <div class="station">
+        <div class="station-num">${stationCount++}</div>
+        <div class="station-name">${starTag(w.finisher.n)}${w.finisher.n}</div>
+        <div class="station-tag">${EQUIP_LABEL[w.finisher.eq[0]]}</div>
+        ${infoBtn(w.finisher.n)}
+      </div>`;
+  }
+
+  html += `<div class="round-note">Perform each superset back-to-back, ${w.rounds} rounds, 10-12 reps per move. Rest ~45 sec between rounds.</div>`;
+  html += `</div></div>`;
+  return html;
+}
+
+/* ============================ STRETCH GENERATOR ============================ */
+function generateStretchSession(minutes, focus){
+  let pool = STRETCHES.filter(s=>(focus==='full' || s.r===focus || s.r==='full') && !excluded.has(s.n));
+  const totalSeconds = minutes*60;
+  let n = clamp(Math.round(totalSeconds/75),4,12);
+  n = Math.min(n, pool.length);
+  const favPool = shuffle(pool.filter(s=>favorites.has(s.n)));
+  const restPool = shuffle(pool.filter(s=>!favorites.has(s.n)));
+  const picks = favPool.concat(restPool).slice(0,n);
+  let holdSec = Math.round((totalSeconds/n)/2/5)*5;
+  holdSec = clamp(holdSec,15,60);
+  return {minutes, focus, holdSec, picks};
+}
+
+function renderStretch(s){
+  const focusLabels = {full:'Full Body',upper:'Neck & Shoulders',back:'Back',hip:'Hips & Glutes',leg:'Legs'};
+  let html = `<div class="ticket">
+    <div class="ticket-head">
+      <h3>${focusLabels[s.focus]||'Stretch'} Session</h3>
+      <div class="meta">${s.minutes} MIN · ~${s.holdSec}s / SIDE</div>
+    </div>
+    <div class="perf"></div>
+    <div class="ticket-body">`;
+
+  s.picks.forEach((st,idx)=>{
+    html += `<div class="station">
+      <div class="station-num">${idx+1}</div>
+      <div class="station-name">${starTag(st.n)}${st.n}</div>
+      <div class="station-sub">~${s.holdSec}s</div>
+      ${infoBtn(st.n)}
+    </div>`;
+  });
+
+  html += `<div class="round-note">Hold each stretch gently — no bouncing. Breathe slow and steady throughout.</div>`;
+  html += `</div></div>`;
+  return html;
+}
+
+/* ============================ WEEKLY PLAN ============================ */
+function generateWeeklyPlan(days, minutes, equipSet, includeStretch){
+  const dayNamesByCount = {
+    3:['Mon','Wed','Fri'],
+    4:['Mon','Tue','Thu','Fri'],
+    5:['Mon','Tue','Wed','Thu','Fri'],
+    6:['Mon','Tue','Wed','Thu','Fri','Sat'],
+  };
+  const names = dayNamesByCount[days] || dayNamesByCount[5];
+  const focusCycle = ['full','upper','lower','pull-core','push-cond'];
+
+  let stretchIdx = -1;
+  if(includeStretch){
+    stretchIdx = days>=5 ? Math.floor(days/2) : days-1; // middle for 5+, last day otherwise
+  }
+
+  const plan = [];
+  let fCursor = 0;
+  for(let i=0;i<days;i++){
+    if(i===stretchIdx){
+      plan.push({label:names[i], type:'stretch', data: generateStretchSession(minutes,'full')});
+    } else {
+      const focus = focusCycle[fCursor % focusCycle.length];
+      fCursor++;
+      plan.push({label:names[i], type:'strength', data: generateWorkout(minutes, equipSet, focus)});
+    }
+  }
+  return plan;
+}
+
+function renderWeekly(plan){
+  const focusLabels = {full:'Full Body',upper:'Upper Body',lower:'Lower Body','pull-core':'Pull + Core','push-cond':'Push + Conditioning'};
+  return plan.map(day=>{
+    if(day.type==='stretch'){
+      const s = day.data;
+      return `<div class="ticket">
+        <div class="ticket-head">
+          <h3>${day.label} — Stretch &amp; Mobility</h3>
+          <div class="meta">${s.minutes} MIN</div>
+        </div>
+        <div class="perf"></div>
+        <div class="ticket-body">
+          ${s.picks.map((st,idx)=>`<div class="station">
+            <div class="station-num">${idx+1}</div>
+            <div class="station-name">${starTag(st.n)}${st.n}</div>
+            <div class="station-sub">~${s.holdSec}s</div>
+            ${infoBtn(st.n)}
+          </div>`).join('')}
+        </div>
+      </div>`;
+    } else {
+      const w = day.data;
+      let stationCount=1;
+      let body = '';
+      if(w.warmupMin>0){
+        body += `<div class="block-label">Warm-up · ${w.warmupMin} min</div>
+          <div class="station"><div class="station-num">W</div><div class="station-name">Light cardio + arm circles</div></div>`;
+      }
+      w.pairs.forEach((pair,idx)=>{
+        body += `<div class="block-label">Superset ${idx+1}</div><div class="pair-group">`;
+        pair.forEach(ex=>{
+          body += `<div class="station">
+            <div class="station-num">${stationCount++}</div>
+            <div class="station-name">${starTag(ex.n)}${ex.n}</div>
+            <div class="station-tag">${EQUIP_LABEL[ex.eq[0]]}</div>
+            ${infoBtn(ex.n)}
+          </div>`;
+        });
+        body += `</div>`;
+      });
+      if(w.finisher){
+        body += `<div class="block-label">Finisher</div>
+          <div class="station"><div class="station-num">${stationCount++}</div><div class="station-name">${starTag(w.finisher.n)}${w.finisher.n}</div><div class="station-tag">${EQUIP_LABEL[w.finisher.eq[0]]}</div>${infoBtn(w.finisher.n)}</div>`;
+      }
+      return `<div class="ticket">
+        <div class="ticket-head">
+          <h3>${day.label} — ${focusLabels[w.focus]}</h3>
+          <div class="meta">${w.minutes} MIN · ${w.rounds} ROUNDS</div>
+        </div>
+        <div class="perf"></div>
+        <div class="ticket-body">${body}
+          <div class="round-note">${w.rounds} rounds per superset, 10-12 reps, ~45 sec rest.</div>
+        </div>
+      </div>`;
+    }
+  }).join('');
+}
+
+/* ============================ UI WIRING ============================ */
+// tabs
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+// generic chip / seg toggles
+function wireChips(containerId, minOne=true){
+  const el = document.getElementById(containerId);
+  el.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      const onCount = [...el.querySelectorAll('.chip.on')].length;
+      if(minOne && chip.classList.contains('on') && onCount<=1) return;
+      chip.classList.toggle('on');
+    });
+  });
+}
+function wireSeg(containerId, attr){
+  const el = document.getElementById(containerId);
+  el.querySelectorAll('.seg-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      el.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('on'));
+      btn.classList.add('on');
+    });
+  });
+}
+function getEquipSet(containerId){
+  const el = document.getElementById(containerId);
+  return new Set([...el.querySelectorAll('.chip.on')].map(c=>c.dataset.eq));
+}
+function getSegValue(containerId, attr){
+  const el = document.getElementById(containerId);
+  const on = el.querySelector('.seg-btn.on');
+  return on ? on.dataset[attr] : null;
+}
+
+wireChips('w-equip');
+wireSeg('w-focus','f');
+wireChips('p-equip');
+
+// workout time slider
+const wTime = document.getElementById('w-time');
+wTime.addEventListener('input',()=>{ document.getElementById('w-time-val').textContent = wTime.value+' min'; });
+
+// stretch time slider
+const sTime = document.getElementById('s-time');
+sTime.addEventListener('input',()=>{ document.getElementById('s-time-val').textContent = sTime.value+' min'; });
+wireSeg('s-focus','f');
+
+// plan time slider
+const pTime = document.getElementById('p-time');
+pTime.addEventListener('input',()=>{ document.getElementById('p-time-val').textContent = pTime.value+' min'; });
+
+// plan days seg
+document.getElementById('p-days').querySelectorAll('.seg-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.getElementById('p-days').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+  });
+});
+
+// stretch day toggle
+const stretchSwitch = document.getElementById('p-stretch-switch');
+document.getElementById('p-stretch-toggle').addEventListener('click',()=>{
+  stretchSwitch.classList.toggle('on');
+});
+
+// generate buttons
+document.getElementById('w-generate').addEventListener('click',()=>{
+  const minutes = parseInt(wTime.value,10);
+  const equip = getEquipSet('w-equip');
+  const focus = getSegValue('w-focus','f') || 'full';
+  const w = generateWorkout(minutes, equip, focus);
+  document.getElementById('w-results').innerHTML = renderWorkout(w);
+});
+
+document.getElementById('s-generate').addEventListener('click',()=>{
+  const minutes = parseInt(sTime.value,10);
+  const focus = getSegValue('s-focus','f') || 'full';
+  const s = generateStretchSession(minutes, focus);
+  document.getElementById('s-results').innerHTML = renderStretch(s);
+});
+
+document.getElementById('p-generate').addEventListener('click',()=>{
+  const daysBtn = document.getElementById('p-days').querySelector('.seg-btn.on');
+  const days = parseInt(daysBtn.dataset.d,10);
+  const minutes = parseInt(pTime.value,10);
+  const equip = getEquipSet('p-equip');
+  const includeStretch = stretchSwitch.classList.contains('on');
+  const plan = generateWeeklyPlan(days, minutes, equip, includeStretch);
+  document.getElementById('p-results').innerHTML = renderWeekly(plan);
+});
+/* ============================ MANAGE TAB ============================ */
+function itemGroupLabel(item){
+  if(item.r) return 'Stretches';
+  const labels = {push:'Push',pull:'Pull',lower:'Lower Body',core:'Core',full:'Full Body / Conditioning'};
+  return labels[item.g] || 'Other';
+}
+function itemEquipTag(item){
+  if(item.r) return 'Stretch';
+  return item.eq.map(e=>EQUIP_LABEL[e]).join(' / ');
+}
+function matchesFilter(item, filter){
+  if(filter==='all') return true;
+  if(filter==='stretch') return !!item.r;
+  if(filter==='favorites') return favorites.has(item.n);
+  if(filter==='excluded') return excluded.has(item.n);
+  return !item.r && item.eq.includes(filter);
+}
+
+function renderManageList(){
+  const search = (document.getElementById('ex-search').value || '').toLowerCase().trim();
+  const filterBtn = document.querySelector('#ex-filter .seg-btn.on');
+  const filter = filterBtn ? filterBtn.dataset.ef : 'all';
+
+  const filtered = ALL_ITEMS.filter(item=>{
+    if(search && !item.n.toLowerCase().includes(search)) return false;
+    return matchesFilter(item, filter);
+  });
+
+  const container = document.getElementById('ex-list');
+  if(filtered.length===0){
+    container.innerHTML = `<div class="manage-empty">No exercises match that search/filter.</div>`;
+    return;
+  }
+
+  // group by category in a stable order
+  const order = ['push','pull','lower','core','full','stretch'];
+  const groups = {};
+  filtered.forEach(item=>{
+    const key = item.r ? 'stretch' : item.g;
+    (groups[key] = groups[key] || []).push(item);
+  });
+
+  let html = '';
+  order.forEach(key=>{
+    if(!groups[key]) return;
+    const label = key==='stretch' ? 'Stretches' : itemGroupLabel(groups[key][0]);
+    html += `<div class="ex-group-label">${label}</div>`;
+    groups[key].forEach(item=>{
+      const isFav = favorites.has(item.n);
+      const isExcl = excluded.has(item.n);
+      html += `<div class="ex-row ${isExcl?'is-excluded':''}">
+        <div class="ex-name">${item.n}</div>
+        <div class="ex-eq-tag">${itemEquipTag(item)}</div>
+        <button class="icon-btn fav-btn ${isFav?'active':''}" data-name="${item.n.replace(/"/g,'&quot;')}" title="Favorite">★</button>
+        <button class="icon-btn excl-btn ${isExcl?'active':''}" data-name="${item.n.replace(/"/g,'&quot;')}" title="Exclude">✕</button>
+        ${infoBtn(item.n)}
+      </div>`;
+    });
+  });
+  container.innerHTML = html;
+}
+
+document.getElementById('ex-list').addEventListener('click',(e)=>{
+  const favBtn = e.target.closest('.fav-btn');
+  const exclBtn = e.target.closest('.excl-btn');
+  if(favBtn){
+    const name = favBtn.dataset.name;
+    if(favorites.has(name)) favorites.delete(name); else { favorites.add(name); excluded.delete(name); }
+    savePrefs();
+    renderManageList();
+  } else if(exclBtn){
+    const name = exclBtn.dataset.name;
+    if(excluded.has(name)) excluded.delete(name); else { excluded.add(name); favorites.delete(name); }
+    savePrefs();
+    renderManageList();
+  }
+});
+
+document.getElementById('ex-search').addEventListener('input', renderManageList);
+document.getElementById('ex-filter').querySelectorAll('.seg-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.getElementById('ex-filter').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    renderManageList();
+  });
+});
+
+// export
+document.getElementById('btn-export').addEventListener('click',()=>{
+  const payload = JSON.stringify({favorites:[...favorites], excluded:[...excluded]}, null, 2);
+  const blob = new Blob([payload], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'quicktraining-preferences.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+// import
+document.getElementById('btn-import').addEventListener('click',()=>{
+  document.getElementById('file-import').click();
+});
+document.getElementById('file-import').addEventListener('change',(e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const data = JSON.parse(reader.result);
+      favorites = new Set(Array.isArray(data.favorites) ? data.favorites : []);
+      excluded = new Set(Array.isArray(data.excluded) ? data.excluded : []);
+      savePrefs();
+      renderManageList();
+    }catch(err){
+      alert('Could not read that file — make sure it\'s a preferences file exported from this app.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+// reset
+document.getElementById('btn-reset').addEventListener('click',()=>{
+  if(!confirm('Clear all favorites and excluded exercises?')) return;
+  favorites = new Set();
+  excluded = new Set();
+  savePrefs();
+  renderManageList();
+});
+
+/* ============================ INFO MODAL ============================ */
+const infoModal = document.getElementById('info-modal');
+const infoModalTitle = document.getElementById('info-modal-title');
+const infoModalBody = document.getElementById('info-modal-body');
+
+function openInfoModal(name){
+  infoModalTitle.textContent = name;
+  infoModalBody.textContent = DESC_BY_NAME[name] || "No description available yet for this exercise.";
+  infoModal.classList.add('open');
+}
+function closeInfoModal(){
+  infoModal.classList.remove('open');
+}
+
+document.body.addEventListener('click',(e)=>{
+  const btn = e.target.closest('.info-btn');
+  if(btn){
+    e.preventDefault();
+    e.stopPropagation();
+    openInfoModal(btn.dataset.infoName);
+  }
+});
+document.getElementById('info-modal-close').addEventListener('click', closeInfoModal);
+infoModal.addEventListener('click',(e)=>{
+  if(e.target === infoModal) closeInfoModal();
+});
+document.addEventListener('keydown',(e)=>{
+  if(e.key === 'Escape') closeInfoModal();
+});
+
+/* ============================ INIT ============================ */
+(async function init(){
+  const saved = await loadPrefs();
+  favorites = new Set(saved.favorites || []);
+  excluded = new Set(saved.excluded || []);
+  updateDataStatus(window.storage ? 'cloud' : (function(){try{localStorage.getItem('x');return 'local';}catch(e){return null;}})());
+  renderManageList();
+})();
+</script>
+</body>
+</html>
