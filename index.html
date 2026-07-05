@@ -455,6 +455,121 @@ input[type=range]::-moz-range-thumb{
   color:var(--ink-soft);
 }
 
+/* ---- save bar (weekly plan) ---- */
+.save-bar{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:14px 16px;
+  margin-bottom:18px;
+}
+.save-bar .search-input{flex:1;}
+.save-plan-btn{
+  white-space:nowrap;
+  background:var(--ink);
+  color:var(--paper);
+  border-color:var(--ink);
+}
+.save-plan-btn:hover{background:var(--accent);border-color:var(--accent);color:var(--paper);}
+
+/* ---- saved plans ---- */
+.saved-card-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  cursor:pointer;
+}
+.saved-card-title{
+  font-weight:500;
+  font-size:16px;
+  color:var(--ink);
+}
+.saved-card-sub{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11.5px;
+  color:var(--ink-dim);
+  margin-top:4px;
+}
+.saved-card-actions{display:flex;gap:8px;flex:none;}
+.saved-detail{display:none;margin-top:18px;}
+.saved-detail.open{display:block;}
+.chevron{
+  color:var(--ink-dim);
+  font-size:13px;
+  transition:transform .15s;
+}
+.chevron.open{transform:rotate(180deg);}
+
+.saved-section-label{
+  font-family:'Inter',sans-serif;
+  text-transform:uppercase;
+  letter-spacing:1.1px;
+  font-size:12px;
+  font-weight:600;
+  color:var(--ink-dim);
+  margin:26px 0 10px;
+  padding-top:16px;
+  border-top:1px solid var(--line);
+}
+.saved-section-label:first-child{margin-top:0;padding-top:0;border-top:none;}
+.saved-type-tag{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  color:var(--accent);
+  border:1px solid var(--accent);
+  background:var(--accent-soft);
+  padding:2px 8px;
+  border-radius:99px;
+  flex:none;
+}
+
+/* ---- add-to-plan modal ---- */
+.form-field{margin-bottom:16px;}
+.form-field:last-child{margin-bottom:0;}
+.form-field-label{
+  font-family:'Inter',sans-serif;
+  text-transform:uppercase;
+  font-size:11px;
+  letter-spacing:1px;
+  font-weight:600;
+  color:var(--ink-dim);
+  margin-bottom:8px;
+}
+.form-select{
+  width:100%;
+  background:var(--paper);
+  border:1px solid var(--line);
+  color:var(--ink);
+  padding:10px 12px;
+  border-radius:var(--radius-sm);
+  font-family:'Inter',sans-serif;
+  font-size:14px;
+  outline:none;
+}
+.form-select:focus{border-color:var(--accent);}
+.radio-row{display:flex;gap:16px;margin-bottom:14px;}
+.radio-opt{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-soft);cursor:pointer;}
+.modal-submit{
+  width:100%;
+  background:var(--ink);
+  color:var(--paper);
+  border:none;
+  padding:12px;
+  border-radius:var(--radius-sm);
+  font-family:'Inter',sans-serif;
+  font-weight:500;
+  font-size:14px;
+  cursor:pointer;
+  margin-top:6px;
+}
+.modal-submit:hover{background:var(--accent);}
+
 @media(max-width:520px){
   .ticket-head{flex-direction:column;align-items:flex-start;}
   .data-bar{flex-direction:column;align-items:stretch;}
@@ -474,6 +589,7 @@ input[type=range]::-moz-range-thumb{
     <div class="tab" data-tab="stretch">Stretch</div>
     <div class="tab" data-tab="week">Weekly Plan</div>
     <div class="tab" data-tab="manage">Manage</div>
+    <div class="tab" data-tab="saved">Saved</div>
   </div>
 
   <!-- ===================== WORKOUT PANEL ===================== -->
@@ -503,6 +619,10 @@ input[type=range]::-moz-range-thumb{
       </div>
       <button class="generate-btn" id="w-generate">Generate Workout</button>
     </div>
+    <div class="save-bar" id="w-save-bar" style="display:none;">
+      <input type="text" class="search-input" id="w-plan-name" placeholder="Name this workout…" maxlength="60">
+      <button class="data-btn save-plan-btn" id="w-save-btn">Save Workout</button>
+    </div>
     <div class="results" id="w-results">
       <div class="empty-hint">Set your time and equipment, then generate a session.</div>
     </div>
@@ -526,6 +646,10 @@ input[type=range]::-moz-range-thumb{
         </div>
       </div>
       <button class="generate-btn" id="s-generate">Generate Stretch Session</button>
+    </div>
+    <div class="save-bar" id="s-save-bar" style="display:none;">
+      <input type="text" class="search-input" id="s-plan-name" placeholder="Name this stretch session…" maxlength="60">
+      <button class="data-btn save-plan-btn" id="s-save-btn">Save Stretch</button>
     </div>
     <div class="results" id="s-results">
       <div class="empty-hint">No equipment needed — just pick a focus and time.</div>
@@ -564,8 +688,19 @@ input[type=range]::-moz-range-thumb{
       </div>
       <button class="generate-btn" id="p-generate">Generate Weekly Plan</button>
     </div>
+    <div class="save-bar" id="p-save-bar" style="display:none;">
+      <input type="text" class="search-input" id="p-plan-name" placeholder="Name this plan…" maxlength="60">
+      <button class="data-btn save-plan-btn" id="p-save-btn">Save Plan</button>
+    </div>
     <div class="results" id="p-results">
       <div class="empty-hint">Build your week — strength days rotate focus automatically.</div>
+    </div>
+  </div>
+
+  <!-- ===================== SAVED PANEL ===================== -->
+  <div class="panel" id="panel-saved">
+    <div class="results" id="saved-results">
+      <div class="empty-hint">No saved sessions yet — generate a workout, stretch, or weekly plan you like, then save it.</div>
     </div>
   </div>
   <!-- ===================== MANAGE PANEL ===================== -->
@@ -611,6 +746,34 @@ input[type=range]::-moz-range-thumb{
       <button class="modal-close" id="info-modal-close">&times;</button>
     </div>
     <div class="modal-body" id="info-modal-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="add-to-plan-modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Add to Weekly Plan</h3>
+      <button class="modal-close" id="add-to-plan-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="radio-row">
+        <label class="radio-opt"><input type="radio" name="atp-dest" value="new" checked> New plan</label>
+        <label class="radio-opt"><input type="radio" name="atp-dest" value="existing"> Existing plan</label>
+      </div>
+      <div class="form-field" id="atp-new-name-field">
+        <div class="form-field-label">Plan name</div>
+        <input type="text" class="search-input" id="atp-new-name" placeholder="e.g. Summer Split" maxlength="60">
+      </div>
+      <div class="form-field" id="atp-existing-field" style="display:none;">
+        <div class="form-field-label">Choose plan</div>
+        <select class="form-select" id="atp-existing-select"></select>
+      </div>
+      <div class="form-field">
+        <div class="form-field-label">Day label</div>
+        <input type="text" class="search-input" id="atp-day-label" placeholder="e.g. Mon" maxlength="20">
+      </div>
+      <button class="modal-submit" id="atp-submit">Add to Plan</button>
+    </div>
   </div>
 </div>
 
@@ -799,6 +962,182 @@ function updateDataStatus(savedVia){
     el.innerHTML = `<b>${favN}</b> favorited · <b>${exN}</b> excluded — autosave unavailable, use Export to keep changes`;
   }
 }
+
+/* ============================ SAVED ITEMS ============================ */
+let savedItems = [];
+const TYPE_LABELS = {plan:'Weekly Plan', workout:'Workout', stretch:'Stretch'};
+const TYPE_ORDER = ['plan','workout','stretch'];
+
+async function loadSavedItems(){
+  try{
+    if(window.storage){
+      const r = await window.storage.get('qt-saved-items');
+      if(r && r.value) return JSON.parse(r.value);
+    }
+  }catch(e){/* none saved yet under new key */}
+  try{
+    const raw = localStorage.getItem('qt-saved-items');
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  // migrate legacy weekly-plan-only storage if present
+  let legacy = [];
+  try{
+    if(window.storage){
+      const r = await window.storage.get('qt-saved-plans');
+      if(r && r.value) legacy = JSON.parse(r.value);
+    }
+  }catch(e){}
+  if(legacy.length===0){
+    try{
+      const raw = localStorage.getItem('qt-saved-plans');
+      if(raw) legacy = JSON.parse(raw);
+    }catch(e){}
+  }
+  return legacy.map(p=>({id:p.id, type:'plan', name:p.name, createdAt:p.createdAt, data:p.plan}));
+}
+
+async function persistSavedItems(){
+  const payload = JSON.stringify(savedItems);
+  try{
+    if(window.storage){ await window.storage.set('qt-saved-items', payload, false); }
+  }catch(e){/* fall through to localStorage */}
+  try{ localStorage.setItem('qt-saved-items', payload); }catch(e){}
+}
+
+function saveItem(type, name, data){
+  const entry = {
+    id: 'item_' + Date.now() + '_' + Math.floor(Math.random()*10000),
+    type, name,
+    createdAt: Date.now(),
+    data,
+  };
+  savedItems.unshift(entry);
+  persistSavedItems();
+  renderSavedItems();
+}
+
+function deleteSavedItem(id){
+  savedItems = savedItems.filter(p=>p.id!==id);
+  persistSavedItems();
+  renderSavedItems();
+}
+
+const FOCUS_LABELS_ALL = {full:'Full Body',upper:'Upper Body',lower:'Lower Body','pull-core':'Pull + Core','push-cond':'Push + Conditioning'};
+
+function itemSummary(entry){
+  if(entry.type==='plan'){
+    return `${entry.data.length} days · ` + entry.data.map(d=>{
+      if(d.type==='stretch') return 'Stretch';
+      return FOCUS_LABELS_ALL[d.data.focus] || 'Workout';
+    }).join(' · ');
+  }
+  if(entry.type==='workout'){
+    return `${entry.data.minutes} min · ${FOCUS_LABELS_ALL[entry.data.focus] || 'Full Body'}`;
+  }
+  if(entry.type==='stretch'){
+    const focusLabels = {full:'Full Body',upper:'Neck & Shoulders',back:'Back',hip:'Hips & Glutes',leg:'Legs'};
+    return `${entry.data.minutes} min · ${focusLabels[entry.data.focus] || 'Full Body'}`;
+  }
+  return '';
+}
+
+function renderItemDetail(entry){
+  if(entry.type==='plan') return renderWeekly(entry.data);
+  if(entry.type==='workout') return renderWorkout(entry.data);
+  if(entry.type==='stretch') return renderStretch(entry.data);
+  return '';
+}
+
+function renderSavedItems(){
+  const container = document.getElementById('saved-results');
+  if(savedItems.length===0){
+    container.innerHTML = `<div class="empty-hint">No saved sessions yet — generate a workout, stretch, or weekly plan you like, then save it.</div>`;
+    return;
+  }
+  let html = '';
+  TYPE_ORDER.forEach(type=>{
+    const items = savedItems.filter(e=>e.type===type);
+    if(items.length===0) return;
+    html += `<div class="saved-section-label">${TYPE_LABELS[type]}s</div>`;
+    html += items.map(entry=>{
+      const date = new Date(entry.createdAt).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
+      const addBtn = entry.type!=='plan' ? `<button class="data-btn" data-add-id="${entry.id}">+ Add to Plan</button>` : '';
+      return `<div class="ticket">
+        <div class="ticket-body">
+          <div class="saved-card-head" data-toggle-id="${entry.id}">
+            <div>
+              <div class="saved-card-title">${entry.name}</div>
+              <div class="saved-card-sub">${itemSummary(entry)} · saved ${date}</div>
+            </div>
+            <div class="saved-card-actions">
+              ${addBtn}
+              <button class="data-btn warn" data-delete-id="${entry.id}">Delete</button>
+              <span class="chevron" data-chevron-id="${entry.id}">▾</span>
+            </div>
+          </div>
+          <div class="saved-detail" data-detail-id="${entry.id}">
+            ${renderItemDetail(entry)}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  });
+  container.innerHTML = html;
+}
+
+document.getElementById('saved-results').addEventListener('click',(e)=>{
+  const delBtn = e.target.closest('[data-delete-id]');
+  if(delBtn){
+    if(confirm('Delete this saved session?')) deleteSavedItem(delBtn.dataset.deleteId);
+    return;
+  }
+  const addBtn = e.target.closest('[data-add-id]');
+  if(addBtn){
+    e.stopPropagation();
+    openAddToPlanModal(addBtn.dataset.addId);
+    return;
+  }
+  const head = e.target.closest('.saved-card-head');
+  if(head){
+    const id = head.dataset.toggleId;
+    const detail = document.querySelector(`.saved-detail[data-detail-id="${id}"]`);
+    const chevron = document.querySelector(`.chevron[data-chevron-id="${id}"]`);
+    if(detail){
+      detail.classList.toggle('open');
+      if(chevron) chevron.classList.toggle('open');
+    }
+  }
+});
+
+document.getElementById('w-save-btn').addEventListener('click',()=>{
+  const nameInput = document.getElementById('w-plan-name');
+  const name = nameInput.value.trim();
+  if(!name){ nameInput.focus(); return; }
+  if(!currentWorkout){ return; }
+  saveItem('workout', name, currentWorkout);
+  nameInput.value = '';
+  nameInput.placeholder = 'Saved! Generate again to save another…';
+});
+
+document.getElementById('s-save-btn').addEventListener('click',()=>{
+  const nameInput = document.getElementById('s-plan-name');
+  const name = nameInput.value.trim();
+  if(!name){ nameInput.focus(); return; }
+  if(!currentStretch){ return; }
+  saveItem('stretch', name, currentStretch);
+  nameInput.value = '';
+  nameInput.placeholder = 'Saved! Generate again to save another…';
+});
+
+document.getElementById('p-save-btn').addEventListener('click',()=>{
+  const nameInput = document.getElementById('p-plan-name');
+  const name = nameInput.value.trim();
+  if(!name){ nameInput.focus(); return; }
+  if(!currentWeeklyPlan){ return; }
+  saveItem('plan', name, currentWeeklyPlan);
+  nameInput.value = '';
+  nameInput.placeholder = 'Saved! Generate again to save another…';
+});
 
 /* ============================ HELPERS ============================ */
 function shuffle(arr){
@@ -1123,19 +1462,31 @@ document.getElementById('p-stretch-toggle').addEventListener('click',()=>{
 });
 
 // generate buttons
+let currentWorkout = null;
+let currentStretch = null;
+let currentWeeklyPlan = null;
+
 document.getElementById('w-generate').addEventListener('click',()=>{
   const minutes = parseInt(wTime.value,10);
   const equip = getEquipSet('w-equip');
   const focus = getSegValue('w-focus','f') || 'full';
   const w = generateWorkout(minutes, equip, focus);
+  currentWorkout = w;
   document.getElementById('w-results').innerHTML = renderWorkout(w);
+  document.getElementById('w-save-bar').style.display = 'flex';
+  document.getElementById('w-plan-name').value = '';
+  document.getElementById('w-plan-name').placeholder = 'Name this workout…';
 });
 
 document.getElementById('s-generate').addEventListener('click',()=>{
   const minutes = parseInt(sTime.value,10);
   const focus = getSegValue('s-focus','f') || 'full';
   const s = generateStretchSession(minutes, focus);
+  currentStretch = s;
   document.getElementById('s-results').innerHTML = renderStretch(s);
+  document.getElementById('s-save-bar').style.display = 'flex';
+  document.getElementById('s-plan-name').value = '';
+  document.getElementById('s-plan-name').placeholder = 'Name this stretch session…';
 });
 
 document.getElementById('p-generate').addEventListener('click',()=>{
@@ -1145,7 +1496,10 @@ document.getElementById('p-generate').addEventListener('click',()=>{
   const equip = getEquipSet('p-equip');
   const includeStretch = stretchSwitch.classList.contains('on');
   const plan = generateWeeklyPlan(days, minutes, equip, includeStretch);
+  currentWeeklyPlan = plan;
   document.getElementById('p-results').innerHTML = renderWeekly(plan);
+  document.getElementById('p-save-bar').style.display = 'flex';
+  document.getElementById('p-plan-name').value = '';
 });
 /* ============================ MANAGE TAB ============================ */
 function itemGroupLabel(item){
@@ -1310,6 +1664,77 @@ document.addEventListener('keydown',(e)=>{
   if(e.key === 'Escape') closeInfoModal();
 });
 
+/* ============================ ADD TO PLAN MODAL ============================ */
+const atpModal = document.getElementById('add-to-plan-modal');
+const atpNewNameField = document.getElementById('atp-new-name-field');
+const atpExistingField = document.getElementById('atp-existing-field');
+const atpExistingSelect = document.getElementById('atp-existing-select');
+const atpNewName = document.getElementById('atp-new-name');
+const atpDayLabel = document.getElementById('atp-day-label');
+let atpSourceId = null;
+
+function openAddToPlanModal(sourceId){
+  atpSourceId = sourceId;
+  const existingPlans = savedItems.filter(e=>e.type==='plan');
+
+  // populate existing-plan dropdown
+  atpExistingSelect.innerHTML = existingPlans.length
+    ? existingPlans.map(p=>`<option value="${p.id}">${p.name} (${p.data.length} days)</option>`).join('')
+    : `<option value="">No saved plans yet</option>`;
+
+  // default to "new plan" unless there are no existing plans possible either way
+  document.querySelector('input[name="atp-dest"][value="new"]').checked = true;
+  atpNewNameField.style.display = '';
+  atpExistingField.style.display = 'none';
+  atpNewName.value = '';
+
+  const nextDayNum = existingPlans.length ? 1 : 1;
+  atpDayLabel.value = `Day ${nextDayNum}`;
+
+  atpModal.classList.add('open');
+}
+function closeAddToPlanModal(){
+  atpModal.classList.remove('open');
+  atpSourceId = null;
+}
+
+document.querySelectorAll('input[name="atp-dest"]').forEach(radio=>{
+  radio.addEventListener('change',()=>{
+    const isNew = document.querySelector('input[name="atp-dest"]:checked').value === 'new';
+    atpNewNameField.style.display = isNew ? '' : 'none';
+    atpExistingField.style.display = isNew ? 'none' : '';
+  });
+});
+
+document.getElementById('add-to-plan-close').addEventListener('click', closeAddToPlanModal);
+atpModal.addEventListener('click',(e)=>{ if(e.target===atpModal) closeAddToPlanModal(); });
+
+document.getElementById('atp-submit').addEventListener('click',()=>{
+  const source = savedItems.find(e=>e.id===atpSourceId);
+  if(!source) return;
+  const dayLabel = atpDayLabel.value.trim() || 'Day';
+  const dayEntry = {
+    label: dayLabel,
+    type: source.type==='stretch' ? 'stretch' : 'strength',
+    data: source.data,
+  };
+  const dest = document.querySelector('input[name="atp-dest"]:checked').value;
+
+  if(dest==='new'){
+    const name = atpNewName.value.trim();
+    if(!name){ atpNewName.focus(); return; }
+    saveItem('plan', name, [dayEntry]);
+  } else {
+    const planId = atpExistingSelect.value;
+    const plan = savedItems.find(e=>e.id===planId && e.type==='plan');
+    if(!plan){ return; }
+    plan.data = plan.data.concat([dayEntry]);
+    persistSavedItems();
+    renderSavedItems();
+  }
+  closeAddToPlanModal();
+});
+
 /* ============================ INIT ============================ */
 (async function init(){
   const saved = await loadPrefs();
@@ -1317,6 +1742,9 @@ document.addEventListener('keydown',(e)=>{
   excluded = new Set(saved.excluded || []);
   updateDataStatus(window.storage ? 'cloud' : (function(){try{localStorage.getItem('x');return 'local';}catch(e){return null;}})());
   renderManageList();
+
+  savedItems = await loadSavedItems();
+  renderSavedItems();
 })();
 </script>
 </body>
