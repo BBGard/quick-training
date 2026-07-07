@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quick Training — Workout &amp; Stretch Generator</title>
+<title>Quick Training - Workout &amp; Stretch Generator</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%23F1EDE6%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%2214.5%22%20width%3D%2210%22%20height%3D%223%22%20rx%3D%221.2%22%20fill%3D%22%231C2A21%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%229%22%20width%3D%224.5%22%20height%3D%2214%22%20rx%3D%221.6%22%20fill%3D%22%23E17750%22%2F%3E%3Crect%20x%3D%227.2%22%20y%3D%2212%22%20width%3D%223%22%20height%3D%228%22%20rx%3D%221.2%22%20fill%3D%22%23E17750%22%2F%3E%3Crect%20x%3D%2224.5%22%20y%3D%229%22%20width%3D%224.5%22%20height%3D%2214%22%20rx%3D%221.6%22%20fill%3D%22%23E17750%22%2F%3E%3Crect%20x%3D%2221.8%22%20y%3D%2212%22%20width%3D%223%22%20height%3D%228%22%20rx%3D%221.2%22%20fill%3D%22%23E17750%22%2F%3E%3C%2Fsvg%3E">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
@@ -242,7 +242,8 @@ input[type=range]::-moz-range-thumb{
 .station{
   display:flex;
   align-items:center;
-  gap:12px;
+  gap:10px;
+  flex-wrap:wrap;
   padding:10px 0;
   border-bottom:1px solid var(--line);
 }
@@ -386,6 +387,44 @@ input[type=range]::-moz-range-thumb{
 .icon-btn:hover{border-color:var(--ink-dim);color:var(--ink-soft);}
 .icon-btn.fav-btn.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);}
 .icon-btn.excl-btn.active{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+.icon-btn.shuffle-btn:hover{border-color:var(--accent);color:var(--accent);}
+.icon-btn.remove-btn:hover{border-color:#B5624A;color:#B5624A;}
+.icon-btn.play-btn{
+  background:var(--ink);
+  border-color:var(--ink);
+  color:var(--paper);
+  font-size:11px;
+}
+.icon-btn.play-btn:hover{background:var(--accent);border-color:var(--accent);color:var(--paper);}
+
+/* ---- play modal ---- */
+.play-box{max-width:380px;text-align:center;}
+.play-phase-label{
+  font-family:'Inter',sans-serif;
+  text-transform:uppercase;
+  letter-spacing:1.4px;
+  font-size:12px;
+  font-weight:600;
+  color:var(--ink-dim);
+  margin-bottom:6px;
+}
+.play-big-number{
+  font-family:'Inter',sans-serif;
+  font-weight:300;
+  font-size:76px;
+  line-height:1;
+  color:var(--ink);
+  margin:14px 0 18px;
+}
+.play-info-text{
+  font-size:14.5px;
+  line-height:1.6;
+  color:var(--ink-soft);
+  text-align:left;
+  margin:10px 0 18px;
+}
+.play-controls{margin-top:4px;}
+.play-controls .data-btn{width:100%;padding:11px;}
 .manage-empty{color:var(--ink-dim);font-size:13.5px;text-align:center;padding:24px;}
 
 .info-btn{
@@ -653,7 +692,7 @@ input[type=range]::-moz-range-thumb{
       <button class="data-btn save-plan-btn" id="s-save-btn">Save Stretch</button>
     </div>
     <div class="results" id="s-results">
-      <div class="empty-hint">No equipment needed — just pick a focus and time.</div>
+      <div class="empty-hint">No equipment needed - just pick a focus and time.</div>
     </div>
   </div>
 
@@ -694,14 +733,14 @@ input[type=range]::-moz-range-thumb{
       <button class="data-btn save-plan-btn" id="p-save-btn">Save Plan</button>
     </div>
     <div class="results" id="p-results">
-      <div class="empty-hint">Build your week — strength days rotate focus automatically.</div>
+      <div class="empty-hint">Build your week - strength days rotate focus automatically.</div>
     </div>
   </div>
 
   <!-- ===================== SAVED PANEL ===================== -->
   <div class="panel" id="panel-saved">
     <div class="results" id="saved-results">
-      <div class="empty-hint">No saved sessions yet — generate a workout, stretch, or weekly plan you like, then save it.</div>
+      <div class="empty-hint">No saved sessions yet - generate a workout, stretch, or weekly plan you like, then save it.</div>
     </div>
   </div>
   <!-- ===================== MANAGE PANEL ===================== -->
@@ -774,6 +813,23 @@ input[type=range]::-moz-range-thumb{
         <input type="text" class="search-input" id="atp-day-label" placeholder="e.g. Mon" maxlength="20">
       </div>
       <button class="modal-submit" id="atp-submit">Add to Plan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="play-modal">
+  <div class="modal-box play-box">
+    <div class="modal-head">
+      <h3 id="play-title">Exercise</h3>
+      <button class="modal-close" id="play-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="play-phase-label" id="play-phase-label">Get Ready</div>
+      <div class="play-big-number" id="play-big-number">3</div>
+      <div class="play-info-text" id="play-info-text" style="display:none;"></div>
+      <div class="play-controls">
+        <button class="data-btn" id="play-skip">Skip</button>
+      </div>
     </div>
   </div>
 </div>
@@ -958,9 +1014,9 @@ function updateDataStatus(savedVia){
   if(!el) return;
   const favN = favorites.size, exN = excluded.size;
   if(savedVia){
-    el.innerHTML = `<b>${favN}</b> favorited · <b>${exN}</b> excluded — saved ${savedVia==='cloud'?'automatically':'to this browser'}`;
+    el.innerHTML = `<b>${favN}</b> favorited · <b>${exN}</b> excluded - saved ${savedVia==='cloud'?'automatically':'to this browser'}`;
   } else {
-    el.innerHTML = `<b>${favN}</b> favorited · <b>${exN}</b> excluded — autosave unavailable, use Export to keep changes`;
+    el.innerHTML = `<b>${favN}</b> favorited · <b>${exN}</b> excluded - autosave unavailable, use Export to keep changes`;
   }
 }
 
@@ -1052,7 +1108,7 @@ function renderItemDetail(entry){
 function renderSavedItems(){
   const container = document.getElementById('saved-results');
   if(savedItems.length===0){
-    container.innerHTML = `<div class="empty-hint">No saved sessions yet — generate a workout, stretch, or weekly plan you like, then save it.</div>`;
+    container.innerHTML = `<div class="empty-hint">No saved sessions yet - generate a workout, stretch, or weekly plan you like, then save it.</div>`;
     return;
   }
   let html = '';
@@ -1202,7 +1258,7 @@ function generateWorkout(minutes, equipSet, focus){
     if(fx) finisher = fx;
   }
 
-  return {minutes, warmupMin, rounds, pairs, finisher, focus};
+  return {minutes, warmupMin, rounds, pairs, finisher, focus, equip:[...equipSet]};
 }
 
 const DESC_BY_NAME = {};
@@ -1217,7 +1273,20 @@ function starTag(name){
   return favorites.has(name) ? '<span class="fav-star">★</span>' : '';
 }
 
-function renderWorkout(w){
+const WORK_SECONDS = 40;
+const DEFAULT_STRETCH_SECONDS = 30;
+
+function playBtn(name, durationSec, mode){
+  const safe = name.replace(/"/g,'&quot;');
+  return `<button class="icon-btn play-btn" data-play-name="${safe}" data-play-duration="${durationSec}" data-play-mode="${mode}" title="Start this exercise" aria-label="Play">▶</button>`;
+}
+
+function editBtns(loc){
+  return `<button class="icon-btn shuffle-btn" data-shuffle-loc="${loc}" title="Swap this exercise" aria-label="Shuffle">↻</button>
+    <button class="icon-btn remove-btn" data-remove-loc="${loc}" title="Remove this exercise" aria-label="Remove">✕</button>`;
+}
+
+function renderWorkout(w, editable){
   const focusLabels = {full:'Full Body',upper:'Upper Body',lower:'Lower Body','pull-core':'Pull + Core','push-cond':'Push + Conditioning'};
   let html = `<div class="ticket">
     <div class="ticket-head">
@@ -1238,12 +1307,14 @@ function renderWorkout(w){
   let stationCount=1;
   w.pairs.forEach((pair,idx)=>{
     html += `<div class="block-label">Superset ${idx+1}</div><div class="pair-group">`;
-    pair.forEach(ex=>{
+    pair.forEach((ex,exIdx)=>{
       html += `<div class="station">
+        ${playBtn(ex.n, WORK_SECONDS, 'exercise')}
         <div class="station-num">${stationCount++}</div>
         <div class="station-name">${starTag(ex.n)}${ex.n}</div>
         <div class="station-tag">${EQUIP_LABEL[ex.eq[0]]}</div>
         ${infoBtn(ex.n)}
+        ${editable ? editBtns(`pair-${idx}-${exIdx}`) : ''}
       </div>`;
     });
     html += `</div>`;
@@ -1252,10 +1323,12 @@ function renderWorkout(w){
   if(w.finisher){
     html += `<div class="block-label">Finisher</div>
       <div class="station">
+        ${playBtn(w.finisher.n, WORK_SECONDS, 'exercise')}
         <div class="station-num">${stationCount++}</div>
         <div class="station-name">${starTag(w.finisher.n)}${w.finisher.n}</div>
         <div class="station-tag">${EQUIP_LABEL[w.finisher.eq[0]]}</div>
         ${infoBtn(w.finisher.n)}
+        ${editable ? editBtns('finisher') : ''}
       </div>`;
   }
 
@@ -1278,7 +1351,7 @@ function generateStretchSession(minutes, focus){
   return {minutes, focus, holdSec, picks};
 }
 
-function renderStretch(s){
+function renderStretch(s, editable){
   const focusLabels = {full:'Full Body',upper:'Neck & Shoulders',back:'Back',hip:'Hips & Glutes',leg:'Legs'};
   let html = `<div class="ticket">
     <div class="ticket-head">
@@ -1290,14 +1363,16 @@ function renderStretch(s){
 
   s.picks.forEach((st,idx)=>{
     html += `<div class="station">
+      ${playBtn(st.n, s.holdSec, 'stretch')}
       <div class="station-num">${idx+1}</div>
       <div class="station-name">${starTag(st.n)}${st.n}</div>
       <div class="station-sub">~${s.holdSec}s</div>
       ${infoBtn(st.n)}
+      ${editable ? editBtns(`pick-${idx}`) : ''}
     </div>`;
   });
 
-  html += `<div class="round-note">Hold each stretch gently — no bouncing. Breathe slow and steady throughout.</div>`;
+  html += `<div class="round-note">Hold each stretch gently - no bouncing. Breathe slow and steady throughout.</div>`;
   html += `</div></div>`;
   return html;
 }
@@ -1332,23 +1407,25 @@ function generateWeeklyPlan(days, minutes, equipSet, includeStretch){
   return plan;
 }
 
-function renderWeekly(plan){
+function renderWeekly(plan, editable){
   const focusLabels = {full:'Full Body',upper:'Upper Body',lower:'Lower Body','pull-core':'Pull + Core','push-cond':'Push + Conditioning'};
-  return plan.map(day=>{
+  return plan.map((day,dayIdx)=>{
     if(day.type==='stretch'){
       const s = day.data;
       return `<div class="ticket">
         <div class="ticket-head">
-          <h3>${day.label} — Stretch &amp; Mobility</h3>
+          <h3>${day.label} - Stretch &amp; Mobility</h3>
           <div class="meta">${s.minutes} MIN</div>
         </div>
         <div class="perf"></div>
         <div class="ticket-body">
           ${s.picks.map((st,idx)=>`<div class="station">
+            ${playBtn(st.n, s.holdSec, 'stretch')}
             <div class="station-num">${idx+1}</div>
             <div class="station-name">${starTag(st.n)}${st.n}</div>
             <div class="station-sub">~${s.holdSec}s</div>
             ${infoBtn(st.n)}
+            ${editable ? editBtns(`day-${dayIdx}-pick-${idx}`) : ''}
           </div>`).join('')}
         </div>
       </div>`;
@@ -1362,23 +1439,25 @@ function renderWeekly(plan){
       }
       w.pairs.forEach((pair,idx)=>{
         body += `<div class="block-label">Superset ${idx+1}</div><div class="pair-group">`;
-        pair.forEach(ex=>{
+        pair.forEach((ex,exIdx)=>{
           body += `<div class="station">
+            ${playBtn(ex.n, WORK_SECONDS, 'exercise')}
             <div class="station-num">${stationCount++}</div>
             <div class="station-name">${starTag(ex.n)}${ex.n}</div>
             <div class="station-tag">${EQUIP_LABEL[ex.eq[0]]}</div>
             ${infoBtn(ex.n)}
+            ${editable ? editBtns(`day-${dayIdx}-pair-${idx}-${exIdx}`) : ''}
           </div>`;
         });
         body += `</div>`;
       });
       if(w.finisher){
         body += `<div class="block-label">Finisher</div>
-          <div class="station"><div class="station-num">${stationCount++}</div><div class="station-name">${starTag(w.finisher.n)}${w.finisher.n}</div><div class="station-tag">${EQUIP_LABEL[w.finisher.eq[0]]}</div>${infoBtn(w.finisher.n)}</div>`;
+          <div class="station">${playBtn(w.finisher.n, WORK_SECONDS, 'exercise')}<div class="station-num">${stationCount++}</div><div class="station-name">${starTag(w.finisher.n)}${w.finisher.n}</div><div class="station-tag">${EQUIP_LABEL[w.finisher.eq[0]]}</div>${infoBtn(w.finisher.n)}${editable ? editBtns(`day-${dayIdx}-finisher`) : ''}</div>`;
       }
       return `<div class="ticket">
         <div class="ticket-head">
-          <h3>${day.label} — ${focusLabels[w.focus]}</h3>
+          <h3>${day.label} - ${focusLabels[w.focus]}</h3>
           <div class="meta">${w.minutes} MIN · ${w.rounds} ROUNDS</div>
         </div>
         <div class="perf"></div>
@@ -1473,7 +1552,7 @@ document.getElementById('w-generate').addEventListener('click',()=>{
   const focus = getSegValue('w-focus','f') || 'full';
   const w = generateWorkout(minutes, equip, focus);
   currentWorkout = w;
-  document.getElementById('w-results').innerHTML = renderWorkout(w);
+  document.getElementById('w-results').innerHTML = renderWorkout(w, true);
   document.getElementById('w-save-bar').style.display = 'flex';
   document.getElementById('w-plan-name').value = '';
   document.getElementById('w-plan-name').placeholder = 'Name this workout…';
@@ -1484,7 +1563,7 @@ document.getElementById('s-generate').addEventListener('click',()=>{
   const focus = getSegValue('s-focus','f') || 'full';
   const s = generateStretchSession(minutes, focus);
   currentStretch = s;
-  document.getElementById('s-results').innerHTML = renderStretch(s);
+  document.getElementById('s-results').innerHTML = renderStretch(s, true);
   document.getElementById('s-save-bar').style.display = 'flex';
   document.getElementById('s-plan-name').value = '';
   document.getElementById('s-plan-name').placeholder = 'Name this stretch session…';
@@ -1498,10 +1577,127 @@ document.getElementById('p-generate').addEventListener('click',()=>{
   const includeStretch = stretchSwitch.classList.contains('on');
   const plan = generateWeeklyPlan(days, minutes, equip, includeStretch);
   currentWeeklyPlan = plan;
-  document.getElementById('p-results').innerHTML = renderWeekly(plan);
+  document.getElementById('p-results').innerHTML = renderWeekly(plan, true);
   document.getElementById('p-save-bar').style.display = 'flex';
   document.getElementById('p-plan-name').value = '';
 });
+
+/* ============================ REMOVE / SHUFFLE (live sessions) ============================ */
+function namesInWorkout(w){
+  const names = new Set();
+  w.pairs.forEach(pair=>pair.forEach(ex=>names.add(ex.n)));
+  if(w.finisher) names.add(w.finisher.n);
+  return names;
+}
+function namesInStretch(s){
+  return new Set(s.picks.map(st=>st.n));
+}
+
+function pickReplacementExercise(group, equipArr, excludeNames){
+  const equipSet = new Set(equipArr);
+  const pool = filterByEquip(STRENGTH, equipSet);
+  const sameGroup = pool.filter(e=>e.g===group && !excludeNames.has(e.n));
+  let candidates = shuffle(sameGroup.filter(e=>favorites.has(e.n))).concat(shuffle(sameGroup.filter(e=>!favorites.has(e.n))));
+  if(candidates.length===0){
+    const broader = pool.filter(e=>!excludeNames.has(e.n));
+    candidates = shuffle(broader.filter(e=>favorites.has(e.n))).concat(shuffle(broader.filter(e=>!favorites.has(e.n))));
+  }
+  return candidates[0] || null;
+}
+function pickReplacementStretch(sessionFocus, excludeNames){
+  const base = STRETCHES.filter(st=>(sessionFocus==='full' || st.r===sessionFocus || st.r==='full') && !excluded.has(st.n));
+  let pool = base.filter(st=>!excludeNames.has(st.n));
+  if(pool.length===0) pool = base; // nothing left to exclude against, allow repeats as last resort
+  const candidates = shuffle(pool.filter(st=>favorites.has(st.n))).concat(shuffle(pool.filter(st=>!favorites.has(st.n))));
+  return candidates[0] || null;
+}
+
+function removeWorkoutExercise(w, loc){
+  const parts = loc.split('-');
+  if(parts[0]==='finisher'){ w.finisher = null; return; }
+  const pairIdx = parseInt(parts[1],10), exIdx = parseInt(parts[2],10);
+  w.pairs[pairIdx].splice(exIdx,1);
+  if(w.pairs[pairIdx].length===0) w.pairs.splice(pairIdx,1);
+}
+function shuffleWorkoutExercise(w, loc){
+  const parts = loc.split('-');
+  const excludeNames = namesInWorkout(w);
+  if(parts[0]==='finisher'){
+    if(!w.finisher) return;
+    excludeNames.delete(w.finisher.n);
+    const repl = pickReplacementExercise(w.finisher.g, w.equip||[], excludeNames);
+    if(repl) w.finisher = repl; else alert('No alternative exercise available with your current equipment/exclusions.');
+    return;
+  }
+  const pairIdx = parseInt(parts[1],10), exIdx = parseInt(parts[2],10);
+  const current = w.pairs[pairIdx][exIdx];
+  excludeNames.delete(current.n);
+  const repl = pickReplacementExercise(current.g, w.equip||[], excludeNames);
+  if(repl) w.pairs[pairIdx][exIdx] = repl; else alert('No alternative exercise available with your current equipment/exclusions.');
+}
+
+function removeStretchPick(s, loc){
+  const idx = parseInt(loc.split('-')[1],10);
+  s.picks.splice(idx,1);
+}
+function shuffleStretchPick(s, loc){
+  const idx = parseInt(loc.split('-')[1],10);
+  const excludeNames = namesInStretch(s);
+  const current = s.picks[idx];
+  excludeNames.delete(current.n);
+  const repl = pickReplacementStretch(s.focus, excludeNames);
+  if(repl) s.picks[idx] = repl; else alert('No alternative stretch available for this focus area.');
+}
+
+function wireLiveSessionEditing(containerId, getState, renderFn, resultsElId){
+  document.getElementById(containerId).addEventListener('click',(e)=>{
+    const state = getState();
+    if(!state) return;
+    const remBtn = e.target.closest('[data-remove-loc]');
+    const shufBtn = e.target.closest('[data-shuffle-loc]');
+    if(remBtn){
+      removeFromState(state, remBtn.dataset.removeLoc);
+      document.getElementById(resultsElId).innerHTML = renderFn(state, true);
+    } else if(shufBtn){
+      shuffleInState(state, shufBtn.dataset.shuffleLoc);
+      document.getElementById(resultsElId).innerHTML = renderFn(state, true);
+    }
+  });
+}
+
+function removeFromState(state, loc){
+  if(loc.startsWith('day-')){
+    const parts = loc.split('-');
+    const dayIdx = parseInt(parts[1],10);
+    const rest = parts.slice(2).join('-');
+    const day = state[dayIdx];
+    if(day.type==='stretch') removeStretchPick(day.data, rest);
+    else removeWorkoutExercise(day.data, rest);
+  } else if(loc.startsWith('pick-')){
+    removeStretchPick(state, loc);
+  } else {
+    removeWorkoutExercise(state, loc);
+  }
+}
+function shuffleInState(state, loc){
+  if(loc.startsWith('day-')){
+    const parts = loc.split('-');
+    const dayIdx = parseInt(parts[1],10);
+    const rest = parts.slice(2).join('-');
+    const day = state[dayIdx];
+    if(day.type==='stretch') shuffleStretchPick(day.data, rest);
+    else shuffleWorkoutExercise(day.data, rest);
+  } else if(loc.startsWith('pick-')){
+    shuffleStretchPick(state, loc);
+  } else {
+    shuffleWorkoutExercise(state, loc);
+  }
+}
+
+wireLiveSessionEditing('w-results', ()=>currentWorkout, renderWorkout, 'w-results');
+wireLiveSessionEditing('s-results', ()=>currentStretch, renderStretch, 's-results');
+wireLiveSessionEditing('p-results', ()=>currentWeeklyPlan, renderWeekly, 'p-results');
+
 /* ============================ MANAGE TAB ============================ */
 function itemGroupLabel(item){
   if(item.r) return 'Stretches';
@@ -1552,7 +1748,10 @@ function renderManageList(){
     groups[key].forEach(item=>{
       const isFav = favorites.has(item.n);
       const isExcl = excluded.has(item.n);
+      const dur = item.r ? DEFAULT_STRETCH_SECONDS : WORK_SECONDS;
+      const mode = item.r ? 'stretch' : 'exercise';
       html += `<div class="ex-row ${isExcl?'is-excluded':''}">
+        ${playBtn(item.n, dur, mode)}
         <div class="ex-name">${item.n}</div>
         <div class="ex-eq-tag">${itemEquipTag(item)}</div>
         <button class="icon-btn fav-btn ${isFav?'active':''}" data-name="${item.n.replace(/"/g,'&quot;')}" title="Favorite">★</button>
@@ -1619,7 +1818,7 @@ document.getElementById('file-import').addEventListener('change',(e)=>{
       savePrefs();
       renderManageList();
     }catch(err){
-      alert('Could not read that file — make sure it\'s a preferences file exported from this app.');
+      alert('Could not read that file - make sure it\'s a preferences file exported from this app.');
     }
   };
   reader.readAsText(file);
@@ -1655,6 +1854,16 @@ document.body.addEventListener('click',(e)=>{
     e.preventDefault();
     e.stopPropagation();
     openInfoModal(btn.dataset.infoName);
+    return;
+  }
+  const playBtnEl = e.target.closest('.play-btn');
+  if(playBtnEl){
+    e.preventDefault();
+    e.stopPropagation();
+    const name = playBtnEl.dataset.playName;
+    const duration = parseInt(playBtnEl.dataset.playDuration,10) || WORK_SECONDS;
+    const mode = playBtnEl.dataset.playMode || 'exercise';
+    openPlayModal(name, duration, mode);
   }
 });
 document.getElementById('info-modal-close').addEventListener('click', closeInfoModal);
@@ -1663,6 +1872,129 @@ infoModal.addEventListener('click',(e)=>{
 });
 document.addEventListener('keydown',(e)=>{
   if(e.key === 'Escape') closeInfoModal();
+});
+
+/* ============================ PLAY MODAL (countdown + timer) ============================ */
+const playModal = document.getElementById('play-modal');
+const playTitleEl = document.getElementById('play-title');
+const playPhaseLabelEl = document.getElementById('play-phase-label');
+const playBigNumberEl = document.getElementById('play-big-number');
+const playInfoTextEl = document.getElementById('play-info-text');
+const playSkipBtn = document.getElementById('play-skip');
+
+let playState = null;
+let playAudioCtx = null;
+
+function getPlayAudioCtx(){
+  if(!playAudioCtx){
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if(!Ctx) return null;
+    playAudioCtx = new Ctx();
+  }
+  if(playAudioCtx.state === 'suspended') playAudioCtx.resume();
+  return playAudioCtx;
+}
+
+function playTone(freq, durationMs, volume){
+  const ctx = getPlayAudioCtx();
+  if(!ctx) return;
+  try{
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    const now = ctx.currentTime;
+    gain.gain.setValueAtTime(volume, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + durationMs/1000);
+    osc.start(now);
+    osc.stop(now + durationMs/1000 + 0.03);
+  }catch(e){ /* audio unavailable, fail silently */ }
+}
+
+function playCountdownBeep(){ playTone(880, 140, 0.22); }
+function playGoTone(){ playTone(1175, 550, 0.25); }
+
+function clearPlayTimers(){
+  if(!playState) return;
+  if(playState.timeoutId) clearTimeout(playState.timeoutId);
+  if(playState.intervalId) clearInterval(playState.intervalId);
+}
+
+function closePlayModal(){
+  clearPlayTimers();
+  if(playState) playState.cancelled = true;
+  playModal.classList.remove('open');
+}
+
+function openPlayModal(name, durationSec, mode){
+  clearPlayTimers();
+  playState = {cancelled:false, timeoutId:null, intervalId:null};
+  playTitleEl.textContent = name;
+  playInfoTextEl.textContent = DESC_BY_NAME[name] || "No description available yet for this exercise.";
+  playInfoTextEl.style.display = 'block';
+  playModal.classList.add('open');
+  runCountdownPhase(name, durationSec, mode);
+}
+
+function runCountdownPhase(name, durationSec, mode){
+  const numbers = [5,4,3,2,1];
+  let i = 0;
+  playPhaseLabelEl.textContent = 'Get Ready';
+  playBigNumberEl.style.display = 'block';
+  playBigNumberEl.textContent = numbers[0];
+  playSkipBtn.textContent = 'Skip';
+  playSkipBtn.onclick = ()=>{ clearPlayTimers(); runTimerPhase(name, durationSec, mode); };
+  playState.intervalId = setInterval(()=>{
+    if(playState.cancelled){ clearInterval(playState.intervalId); return; }
+    i++;
+    if(i < numbers.length){
+      playBigNumberEl.textContent = numbers[i];
+      if(numbers[i] <= 3) playCountdownBeep();
+    } else {
+      clearInterval(playState.intervalId);
+      runTimerPhase(name, durationSec, mode);
+    }
+  }, 1000);
+}
+
+function runTimerPhase(name, durationSec, mode){
+  if(playState.cancelled) return;
+  playGoTone();
+  playPhaseLabelEl.textContent = mode==='stretch' ? 'Hold' : 'Go';
+  playBigNumberEl.style.display = 'block';
+  let remaining = durationSec;
+  playBigNumberEl.textContent = remaining;
+  playSkipBtn.textContent = 'Finish';
+  playSkipBtn.onclick = ()=>{ clearPlayTimers(); runDonePhase(); };
+  playState.intervalId = setInterval(()=>{
+    if(playState.cancelled){ clearInterval(playState.intervalId); return; }
+    remaining--;
+    if(remaining <= 0){
+      clearInterval(playState.intervalId);
+      runDonePhase();
+    } else {
+      playBigNumberEl.textContent = remaining;
+    }
+  }, 1000);
+}
+
+function runDonePhase(){
+  playPhaseLabelEl.textContent = 'Done';
+  playBigNumberEl.style.display = 'block';
+  playInfoTextEl.style.display = 'none';
+  playBigNumberEl.textContent = '✓';
+  playSkipBtn.textContent = 'Close';
+  playSkipBtn.onclick = ()=>{ closePlayModal(); };
+}
+
+document.getElementById('play-close').addEventListener('click', closePlayModal);
+playModal.addEventListener('click',(e)=>{
+  if(e.target === playModal) closePlayModal();
+});
+document.addEventListener('keydown',(e)=>{
+  if(e.key === 'Escape' && playModal.classList.contains('open')) closePlayModal();
 });
 
 /* ============================ ADD TO PLAN MODAL ============================ */
